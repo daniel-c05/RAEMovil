@@ -1,0 +1,70 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/LinearLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".Home" >
+
+    <TextView
+        android:id="@+id/home_title"
+        style="@android:style/TextAppearance.Large"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:padding="8dp"
+        android:text="@string/rae"
+        android:textColor="@color/rae_dark_blue" />
+
+    <EditText
+        android:id="@+id/home_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:imeOptions="actionSearch"
+        android:inputType="text"
+        android:ems="10"
+        android:hint="@string/hint_busqueda" >
+
+        <requestFocus />
+    </EditText>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="?android:attr/dividerVertical" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="2dp" >
+
+        <Button
+            android:id="@+id/home_clear"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/button_clear" />
+        
+        <View
+        android:layout_width="1dp"
+        android:layout_height="fill_parent"
+        android:background="?android:attr/dividerHorizontal" />
+
+        <Button
+            android:id="@+id/home_search"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/button_search" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="?android:attr/dividerVertical" />
+
+</LinearLayout>

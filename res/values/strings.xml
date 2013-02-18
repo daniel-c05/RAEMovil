@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">RAE Movil</string>
+    <string name="rae">Real Academia Española</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="label_lengua">Diccionario de la lengua española</string>
+    <string name="label_prehispanico">Diccionario panhispánico de dudas</string>
+    <string name="button_search">Buscar</string>
+    <string name="button_clear">Borrar</string>
+    <string name="hint_busqueda">Escribe el termino a buscar</string>
+    <string name="title_activity_results">Results</string>
+
+</resources>
