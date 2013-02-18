@@ -11,6 +11,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.lazybits.rae.movil.tasks.GetSearchHtmlAsync;
+import com.lazybits.rae.movil.utils.DbManager;
 import com.lazybits.rae.movil.utils.SearchUtils;
 
 public class Results extends Activity {
@@ -18,36 +20,71 @@ public class Results extends Activity {
 	public static final String EXTRA_TERM = "term";
 
 	private WebView webView;
-	private String url;
+	private String mTerm, mUrl, mHtmlData;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_results);
 		
-		Bundle extras = getIntent().getExtras();
-		if (extras != null && extras.containsKey(EXTRA_TERM)) {
-			url = SearchUtils.getSearchUrl(SearchUtils.SEARCH_LENGUA, extras.getString(EXTRA_TERM));
-			Constants.LogMessage(url);
-		}
-		
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		
-		webView = (WebView) findViewById(R.id.results_webview);	
+		Bundle extras = getIntent().getExtras();
+		
+		if (extras != null && extras.containsKey(EXTRA_TERM)) {
+			mTerm = extras.getString(EXTRA_TERM);
+			mUrl = SearchUtils.getSearchUrl(SearchUtils.SEARCH_LENGUA, mTerm);
+			Constants.LogMessage(mUrl);			
+			mHtmlData = DbManager.getSearchHtmlData(mUrl);
+		}		
+		
+		webView = (WebView) findViewById(R.id.results_webview);
 		WebSettings settings = webView.getSettings();
 		settings.setJavaScriptEnabled(true);
 		webView.setWebViewClient(new MyWebViewClient());
-		webView.loadUrl(url);
 		
+		if (mHtmlData == null || mHtmlData == "") {
+			Constants.LogMessage("Data not loaded from database, calling asynctask");
+			new GetSearchHtmlAsync(webView, SearchUtils.SEARCH_LENGUA).execute(mTerm);
+		}
+		else {
+			Constants.LogMessage("Data loaded from database, loading to webview now");
+			webView.loadDataWithBaseURL("", mHtmlData, SearchUtils.MIME_TYPE, SearchUtils.CHARSET, "");
+		}		
 	}
 	
+	/**
+	 * Taken from <a href="http://developer.android.com/guide/webapps/webview.html">Android Developers</a>
+	 */
 	private class MyWebViewClient extends WebViewClient {
 	    @Override
 	    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+	    	
+	    	Constants.LogMessage("Url clicked: " + url);
+	    	
+	    	if (url.contains(SearchUtils.RELATED_SEARCH_KEY)) {
+	    		//If the search is a related term, handle the search. 
+	    		mTerm = url;
+	    		url = SearchUtils.getSearchUrl(SearchUtils.SEARCH_LENGUA_REL, url);
+	    		Constants.LogMessage("Url is now: " + url);
+	    	  	mHtmlData = DbManager.getSearchHtmlData(url);
+	        	if (mHtmlData == null || mHtmlData == "") {
+	    			Constants.LogMessage("Data not loaded from database, calling asynctask");
+	    			new GetSearchHtmlAsync(view, SearchUtils.SEARCH_LENGUA_REL).execute(mTerm);
+	    		}
+	    		else {
+	    			Constants.LogMessage("Data loaded from database, loading to webview now");
+	    			view.loadDataWithBaseURL("", mHtmlData, SearchUtils.MIME_TYPE, SearchUtils.CHARSET, "");
+	    		}
+	        	return true;
+			}	    	
+	    	
 	        if (Uri.parse(url).getHost().equals(SearchUtils.HOST_URL)) {
-	            // This is my web site, so do not override; let my WebView load the page
+	    		//If the search host is from RAE then let the webview load the url.
+	        	//This never happens
 	            return false;
 	        }
+	        
 	        // Otherwise, the link is not for a page on my site, so launch another Activity that handles URLs
 	        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 	        startActivity(intent);
@@ -57,7 +94,6 @@ public class Results extends Activity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.activity_results, menu);
 		return true;
 	}
@@ -66,13 +102,6 @@ public class Results extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case android.R.id.home:
-			// This ID represents the Home or Up button. In the case of this
-			// activity, the Up button is shown. Use NavUtils to allow users
-			// to navigate up one level in the application structure. For
-			// more details, see the Navigation pattern on Android Design:
-			//
-			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
-			//
 			NavUtils.navigateUpFromSameTask(this);
 			return true;
 		}

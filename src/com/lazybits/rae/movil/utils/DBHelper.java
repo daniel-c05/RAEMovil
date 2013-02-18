@@ -9,10 +9,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DBHelper extends SQLiteOpenHelper {
 	
-	public static final String DB_NAME = "RAE-db";
+	public static final String DB_NAME = "RAEdb";
 	private static final int DB_VERSION = 1;
 	
-	public static final String TABLE_NAME = "saved-searches";
+	public static final String TABLE_NAME = "savedSearches";
 	
 	public static final String _ID = "_id";
 	public static final String TERM = "term";

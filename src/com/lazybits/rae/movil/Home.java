@@ -1,5 +1,7 @@
 package com.lazybits.rae.movil;
 
+import com.lazybits.rae.movil.utils.DbManager;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,14 +19,15 @@ import android.widget.Toast;
 
 public class Home extends Activity implements OnEditorActionListener {
 
-	Button searchButton, clearButton;
-	EditText searchInput;
+	private Button searchButton, clearButton;
+	private EditText searchInput;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
 		setupViews();
+		DbManager.open(this);
 	}
 
 	private void setupViews() {
