@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">RAE Móvil</string>
+    <string name="rae">Real Academia Española</string>
+    <string name="hello_world">Hola Mundo!</string>
+    <string name="menu_settings">Configuración</string>
+    <string name="label_lengua">Diccionario de la lengua española</string>
+    <string name="label_prehispanico">Diccionario panhispánico de dudas</string>
+    <string name="menu_select_dictionary">Seleccionar Diccionario</string>
+    <string name="button_search">Buscar</string>
+    <string name="button_clear">Borrar</string>
+    <string name="hint_busqueda">Escribe el termino a buscar</string>
+    <string name="title_activity_results">Resultados</string>
+    <string name="title_activity_settings">Configuración</string>
+    <string name="label_delete_history_alert">Esto eliminara todo tu historial de busquedas!</string>
+	<string name="label_no_html">No hay data a mostrar, favor revisar el termino ingresado, o tu conexión a internet</string>
+	
+</resources>

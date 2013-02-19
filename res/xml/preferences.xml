@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/pref_title_general"
+        android:key="pref_title_general"         
+        >
+        
+        <Preference
+            android:title="@string/pref_title_clear_history"
+            android:key="pref_title_clear_history"                                     
+            />
+        
+    </PreferenceCategory>
+    
+    <PreferenceCategory
+        android:title="@string/pref_title_navigation"
+        android:key="pref_title_navigation"         
+        >
+        
+        <ListPreference
+            android:title="@string/pref_title_back_behaviour"
+            android:key="pref_title_back_behaviour"
+            android:entries="@array/pref_entries_back_behaviour"  
+            android:entryValues="@array/pref_entrie_values_back_behaviour"           
+            />
+        
+    </PreferenceCategory>
+    
+</PreferenceScreen>

@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.webkit.WebView;
 
 import com.lazybits.rae.movil.Constants;
+import com.lazybits.rae.movil.R;
 import com.lazybits.rae.movil.utils.DbManager;
 import com.lazybits.rae.movil.utils.SearchUtils;
 
@@ -40,6 +41,8 @@ public class GetSearchHtmlAsync extends AsyncTask<String, Void, String> {
 		Constants.LogMessage("AsyncTask calling to donwnload: " + url);
 		
 		DefaultHttpClient client = new DefaultHttpClient();
+		url = SearchUtils.encodePath(url);
+		Constants.LogMessage("encoded url: " + url);
         HttpGet httpGet = new HttpGet(url);
         String response = "";
         
@@ -71,11 +74,13 @@ public class GetSearchHtmlAsync extends AsyncTask<String, Void, String> {
 				Constants.LogMessage("Loading to webview");
 				DbManager.addSearchToDatabase(mTerm, mUrl, htmlData);
 				//There is no url provided as it isn't needed.
-				mWebView.loadDataWithBaseURL("", htmlData, SearchUtils.MIME_TYPE, SearchUtils.CHARSET, "");
+				mWebView.loadDataWithBaseURL(mUrl, htmlData, SearchUtils.MIME_TYPE, SearchUtils.CHARSET, "");
 				mWebView.scrollTo(0, 0);
 			}			
 		}
 		else {
+			String noText = mWebView.getContext().getResources().getString(R.string.label_no_html);
+			mWebView.loadData(noText, "text/html", null);
 			Constants.LogMessage("Html data was null");
 		}		
 	}

@@ -7,13 +7,17 @@
     <uses-sdk
         android:minSdkVersion="11"
         android:targetSdkVersion="17" />
-    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        <provider android:name="com.lazybits.rae.movil.utils.SearchSuggestionsProvider"
+              android:authorities="com.lazybits.rae.movil.utils.SearchSuggestionsProvider" />
+        
         <activity
             android:name="com.lazybits.rae.movil.Home"
             android:label="@string/app_name" >
@@ -26,6 +30,22 @@
         <activity
             android:name="com.lazybits.rae.movil.Results"
             android:label="@string/title_activity_results"
+            android:launchMode="singleTask"
+            android:parentActivityName="com.lazybits.rae.movil.Home" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.lazybits.rae.movil.Home" />
+        </activity>
+        <activity
+            android:name="com.lazybits.rae.movil.Settings"
+            android:label="@string/title_activity_settings"
             android:parentActivityName="com.lazybits.rae.movil.Home" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

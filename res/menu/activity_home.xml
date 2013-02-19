@@ -2,8 +2,14 @@
 
     <item
         android:id="@+id/menu_settings"
-        android:orderInCategory="100"
+        android:orderInCategory="200"
         android:showAsAction="never"
         android:title="@string/menu_settings"/>
+    
+    <item
+        android:id="@+id/menu_select_dictionary"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/menu_select_dictionary"/>    
 
 </menu>
