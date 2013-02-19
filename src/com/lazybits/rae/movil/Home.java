@@ -1,9 +1,10 @@
 package com.lazybits.rae.movil;
 
-import com.lazybits.rae.movil.utils.DbManager;
-
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -18,10 +19,16 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
+import com.lazybits.rae.movil.utils.DbManager;
+import com.lazybits.rae.movil.utils.SearchUtils;
+
 public class Home extends Activity implements OnEditorActionListener {
 
+	private Resources mResources;
 	private Button searchButton, clearButton;
 	private EditText searchInput;
+	int searchMode = SearchUtils.SEARCH_LENGUA;
+	int searchModeRel = SearchUtils.SEARCH_LENGUA_REL;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -29,13 +36,14 @@ public class Home extends Activity implements OnEditorActionListener {
 		setContentView(R.layout.activity_home);
 		setupViews();
 		DbManager.open(this);
+		mResources = getResources();
 	}
 
 	private void setupViews() {
 		searchButton = (Button) findViewById(R.id.home_search);
 		clearButton = (Button) findViewById(R.id.home_clear);
 		searchInput = (EditText) findViewById(R.id.home_input);
-		
+
 		searchInput.setOnEditorActionListener(this);	
 
 		searchButton.setOnClickListener(new OnClickListener() {
@@ -53,10 +61,10 @@ public class Home extends Activity implements OnEditorActionListener {
 				searchInput.setText("");			
 			}
 		});
-		
+
 		getWindow().setSoftInputMode(
-                LayoutParams.SOFT_INPUT_STATE_VISIBLE);	
-	
+				LayoutParams.SOFT_INPUT_STATE_VISIBLE);	
+
 	}
 
 	@Override
@@ -64,7 +72,7 @@ public class Home extends Activity implements OnEditorActionListener {
 		getMenuInflater().inflate(R.menu.activity_home, menu);
 		return true;
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -72,8 +80,8 @@ public class Home extends Activity implements OnEditorActionListener {
 			Intent settings = new Intent(this, Settings.class);
 			startActivity(settings);
 			return true;
-		case R.id.menu_select_dictionary:
-			
+		case R.id.menu_change_dictionary:
+			showChangeDictionary();
 			return true;
 		default:
 			return false;
@@ -95,11 +103,45 @@ public class Home extends Activity implements OnEditorActionListener {
 		if (text != null && text.length() > 3) {
 			Intent search = new Intent(Home.this, Results.class);
 			search.putExtra(Results.EXTRA_TERM, text);
+			search.putExtra(Results.EXTRA_SAERCH_MODE, searchMode);
+			search.putExtra(Results.EXTRA_SAERCH_MODE_REL, searchModeRel);
 			startActivity(search);
 		}
 		else {
-			Toast.makeText(Home.this, "Favor ingrese una palabra de mas de 3 letras", Toast.LENGTH_SHORT).show();
+			Toast.makeText(Home.this, mResources.getString(R.string.label_not_enough_chars), Toast.LENGTH_SHORT).show();
 		}	
 	}	
+
+	protected void showChangeDictionary() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);    		
+		builder.setSingleChoiceItems(R.array.array_dictionary_selecton, searchMode -1, new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				Constants.LogMessage("Item clicked: " + which);
+				switch (which) {
+				case 0:
+					searchMode = SearchUtils.SEARCH_LENGUA;
+					searchModeRel = SearchUtils.SEARCH_LENGUA_REL;
+					break;
+				case 1:
+					searchMode = SearchUtils.SEARCH_PREHISPANICO;
+					searchModeRel = SearchUtils.SEARCH_PREHISPANICO_REL;
+				default:
+					break;
+				}	
+				dialog.dismiss();
+			}
+		})	
+		.setTitle(R.string.title_dialog_select_dictionary)
+		.setCancelable(true).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {				
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+			}
+		});
+		AlertDialog dialog = builder.create();
+		dialog.show();
+	}
 
 }

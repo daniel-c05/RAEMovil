@@ -2,14 +2,19 @@
 
     <item
         android:id="@+id/menu_search"
-        android:icon="@drawable/ic_action_search"
         android:actionViewClass="android.widget.SearchView"
+        android:icon="@drawable/ic_action_search"
         android:orderInCategory="100"
         android:showAsAction="ifRoom|collapseActionView"
         android:title="@string/button_search"/>
     <item
-        android:id="@+id/menu_settings"
+        android:id="@+id/menu_change_dictionary"
         android:orderInCategory="200"
+        android:showAsAction="never"
+        android:title="@string/menu_change_dictionary"/>
+    <item
+        android:id="@+id/menu_settings"
+        android:orderInCategory="300"
         android:showAsAction="never"
         android:title="@string/menu_settings"/>
 

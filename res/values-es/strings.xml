@@ -5,9 +5,10 @@
     <string name="rae">Real Academia Española</string>
     <string name="hello_world">Hola Mundo!</string>
     <string name="menu_settings">Configuración</string>
+    <string name="menu_about">Acerca de</string>
     <string name="label_lengua">Diccionario de la lengua española</string>
     <string name="label_prehispanico">Diccionario panhispánico de dudas</string>
-    <string name="menu_select_dictionary">Seleccionar Diccionario</string>
+    <string name="menu_change_dictionary">Cambiar Diccionario</string>
     <string name="button_search">Buscar</string>
     <string name="button_clear">Borrar</string>
     <string name="hint_busqueda">Escribe el termino a buscar</string>
@@ -15,5 +16,14 @@
     <string name="title_activity_settings">Configuración</string>
     <string name="label_delete_history_alert">Esto eliminara todo tu historial de busquedas!</string>
 	<string name="label_no_html">No hay data a mostrar, favor revisar el termino ingresado, o tu conexión a internet</string>
+	<string name="title_dialog_select_dictionary">Escoje un diccionario: </string>
+	<string name="label_not_enough_chars">Favor ingresa una palabra de al menos dos letras</string>
+	<string-array name="array_dictionary_selecton">
+        <item>@string/label_lengua</item>
+        <item>@string/label_prehispanico</item>
+    </string-array>
+    <string name="about_author"><b>Creado por: Daniel Alvarado</b>\n\nCodigo Fuente disponible en: <a href="https://github.com/daniel-c05/RAEMovil">Github</a>        
+    </string>
+    <string name="button_close">Cerrar</string>
 	
 </resources>

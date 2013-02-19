@@ -5,9 +5,14 @@
     <string name="rae">Real Academia Española</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
+    <string name="menu_about">About</string>
+    <string-array name="array_dictionary_selecton">
+        <item>@string/label_lengua</item>
+        <item>@string/label_prehispanico</item>
+    </string-array>
     <string name="label_lengua">Spanish Dictionary</string>
     <string name="label_prehispanico">Pre-Hispanic Doubts Dictionary</string>
-    <string name="menu_select_dictionary">Select Dictionary</string>
+    <string name="menu_change_dictionary">Change Dictionary</string>
     <string name="label_delete_history_alert">This will erase all of your stored search history!</string>
     <string name="button_search">Search</string>
     <string name="button_clear">Clear</string>
@@ -15,5 +20,10 @@
     <string name="title_activity_results">Results</string>
     <string name="label_no_html">No data to display, check your search term or your internet connection</string>
     <string name="title_activity_settings">Settings</string>
+    <string name="title_dialog_select_dictionary">Choose a dictionary: </string>
+    <string name="about_author"><b>Created by: Daniel Alvarado</b>\n\nSource Code Available at: <a href="https://github.com/daniel-c05/RAEMovil">Github</a>        
+    </string>
+    <string name="button_close">Close</string>
+    <string name="label_not_enough_chars">Please enter a word that has at least two letters</string>
 
 </resources>

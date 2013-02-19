@@ -1,8 +1,10 @@
 package com.lazybits.rae.movil;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -25,11 +27,15 @@ import com.lazybits.rae.movil.utils.SearchUtils;
 public class Results extends Activity {
 
 	public static final String EXTRA_TERM = "term";
+	public static final String EXTRA_SAERCH_MODE = "mode";
+	public static final String EXTRA_SAERCH_MODE_REL = "mode-rel";
 
 	private WebView webView;
 	private String mTerm, mUrl, mHtmlData;
 	private SharedPreferences mPreferences;	
 	private SearchRecentSuggestions suggestions;
+	private int searchMode = SearchUtils.SEARCH_LENGUA;	//Search Lengua by default
+	private int searchModeRel = SearchUtils.SEARCH_LENGUA_REL;	//For webview clicks
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +52,9 @@ public class Results extends Activity {
 
 		if (extras != null && extras.containsKey(EXTRA_TERM)) {					
 			mTerm = extras.getString(EXTRA_TERM);
-			mUrl = SearchUtils.getSearchUrl(SearchUtils.SEARCH_LENGUA, mTerm);			
+			searchMode = extras.getInt(EXTRA_SAERCH_MODE);
+			searchModeRel = extras.getInt(EXTRA_SAERCH_MODE_REL);
+			mUrl = SearchUtils.getSearchUrl(searchMode, mTerm);			
 			suggestions.saveRecentQuery(mTerm, null);
 			Constants.LogMessage(mUrl);			
 			mHtmlData = DbManager.getSearchHtmlData(mUrl);
@@ -59,7 +67,7 @@ public class Results extends Activity {
 
 		if (mHtmlData == null || mHtmlData == "") {
 			Constants.LogMessage("Data not loaded from database, calling asynctask");
-			new GetSearchHtmlAsync(webView, SearchUtils.SEARCH_LENGUA).execute(mTerm);
+			new GetSearchHtmlAsync(webView, searchMode).execute(mTerm);
 		}
 		else {
 			Constants.LogMessage("Data loaded from database, loading to webview now");
@@ -80,17 +88,18 @@ public class Results extends Activity {
 				if (!url.startsWith("http://")) {
 					//If the search is a related term, handle the search. 
 					mTerm = url;
-					url = SearchUtils.getSearchUrl(SearchUtils.SEARCH_LENGUA_REL, url);
+					//we prefer lengua/prehispanico rel, and not searchMode as this is only when handling webview clicks
+					url = SearchUtils.getSearchUrl(searchModeRel, url);					
 				}
 				else {
-					mTerm = SearchUtils.getSearchTerm(SearchUtils.SEARCH_LENGUA_REL, url);	    			
+					mTerm = SearchUtils.getSearchTerm(searchModeRel, url);						    		
 				}
 
 				Constants.LogMessage("Url is now: " + url);
 				mHtmlData = DbManager.getSearchHtmlData(url);
 				if (mHtmlData == null || mHtmlData == "") {
 					Constants.LogMessage("Data not loaded from database, calling asynctask");
-					new GetSearchHtmlAsync(view, SearchUtils.SEARCH_LENGUA_REL).execute(mTerm);
+					new GetSearchHtmlAsync(view, searchModeRel).execute(mTerm);
 				}
 				else {
 					Constants.LogMessage("Data loaded from database, loading to webview now");
@@ -138,12 +147,12 @@ public class Results extends Activity {
 		Constants.LogMessage(query);
 		mTerm = query;
 		suggestions.saveRecentQuery(mTerm, null);
-		mUrl = SearchUtils.getSearchUrl(SearchUtils.SEARCH_LENGUA, mTerm);
+		mUrl = SearchUtils.getSearchUrl(searchMode, mTerm);
 		Constants.LogMessage(mUrl);			
 		mHtmlData = DbManager.getSearchHtmlData(mUrl);
 		if (mHtmlData == null || mHtmlData == "") {
 			Constants.LogMessage("Data not loaded from database, calling asynctask");
-			new GetSearchHtmlAsync(webView, SearchUtils.SEARCH_LENGUA).execute(mTerm);
+			new GetSearchHtmlAsync(webView, searchMode).execute(mTerm);
 		}
 		else {
 			Constants.LogMessage("Data loaded from database, loading to webview now");
@@ -161,6 +170,8 @@ public class Results extends Activity {
 			Intent settings = new Intent(this, Settings.class);
 			startActivity(settings);
 			return true;
+		case R.id.menu_change_dictionary:
+			showChangeDictionary();
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -185,6 +196,38 @@ public class Results extends Activity {
 		}
 
 		return super.onKeyDown(keyCode, event);
+	}
+
+	protected void showChangeDictionary() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);    		
+		builder.setSingleChoiceItems(R.array.array_dictionary_selecton, searchMode - 1, new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				Constants.LogMessage("Item clicked: " + which);
+				switch (which) {
+				case 0:
+					searchMode = SearchUtils.SEARCH_LENGUA;
+					searchModeRel = SearchUtils.SEARCH_LENGUA_REL;
+					break;
+				case 1:
+					searchMode = SearchUtils.SEARCH_PREHISPANICO;
+					searchModeRel = SearchUtils.SEARCH_PREHISPANICO_REL;
+				default:
+					break;					
+				}	
+				dialog.dismiss();
+			}
+		})	
+		.setTitle(R.string.title_dialog_select_dictionary)
+		.setCancelable(true).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {				
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+			}
+		});
+		AlertDialog dialog = builder.create();
+		dialog.show();
 	}
 
 }
