@@ -26,21 +26,23 @@ public final class R {
     }
     public static final class id {
         public static final int LinearLayout1=0x7f0a0000;
+        public static final int about_body=0x7f0a0007;
+        public static final int about_title=0x7f0a0006;
         public static final int home_clear=0x7f0a0003;
         public static final int home_input=0x7f0a0002;
         public static final int home_search=0x7f0a0004;
         public static final int home_title=0x7f0a0001;
-        public static final int menu_about=0x7f0a0009;
-        public static final int menu_change_dictionary=0x7f0a0007;
-        public static final int menu_search=0x7f0a0008;
-        public static final int menu_settings=0x7f0a0006;
+        public static final int menu_about=0x7f0a000b;
+        public static final int menu_change_dictionary=0x7f0a0009;
+        public static final int menu_search=0x7f0a000a;
+        public static final int menu_settings=0x7f0a0008;
         public static final int results_webview=0x7f0a0005;
     }
     public static final class layout {
         public static final int activity_home=0x7f030000;
         public static final int activity_results=0x7f030001;
         public static final int activity_settings=0x7f030002;
-        public static final int delete_history_dialog=0x7f030003;
+        public static final int dialog_about=0x7f030003;
     }
     public static final class menu {
         public static final int activity_home=0x7f090000;
@@ -48,17 +50,18 @@ public final class R {
         public static final int activity_settings=0x7f090002;
     }
     public static final class string {
-        public static final int about_author=0x7f060016;
+        public static final int about_details=0x7f060019;
+        public static final int about_title=0x7f060018;
         public static final int app_name=0x7f060006;
-        public static final int button_clear=0x7f060010;
+        public static final int button_clear=0x7f06000f;
         public static final int button_close=0x7f060017;
-        public static final int button_search=0x7f06000f;
+        public static final int button_search=0x7f06000e;
         public static final int hello_world=0x7f060008;
-        public static final int hint_busqueda=0x7f060011;
-        public static final int label_delete_history_alert=0x7f06000e;
+        public static final int hint_busqueda=0x7f060010;
+        public static final int label_delete_history_alert=0x7f060013;
         public static final int label_lengua=0x7f06000b;
-        public static final int label_no_html=0x7f060013;
-        public static final int label_not_enough_chars=0x7f060018;
+        public static final int label_no_html=0x7f060014;
+        public static final int label_not_enough_chars=0x7f060016;
         public static final int label_prehispanico=0x7f06000c;
         public static final int menu_about=0x7f06000a;
         public static final int menu_change_dictionary=0x7f06000d;
@@ -70,8 +73,8 @@ public final class R {
         public static final int pref_title_general=0x7f060000;
         public static final int pref_title_navigation=0x7f060001;
         public static final int rae=0x7f060007;
-        public static final int title_activity_results=0x7f060012;
-        public static final int title_activity_settings=0x7f060014;
+        public static final int title_activity_results=0x7f060011;
+        public static final int title_activity_settings=0x7f060012;
         public static final int title_dialog_select_dictionary=0x7f060015;
     }
     public static final class style {

@@ -2,12 +2,12 @@
 <resources>
 
     <string name="pref_title_general">General</string>
-    <string name="pref_title_navigation">Navigation</string>
-    <string name="pref_title_back_behaviour">Back Key Behaviour</string>
+    <string name="pref_title_navigation">Navegación</string>
+    <string name="pref_title_back_behaviour">Comportamiento de tecla retroceso</string>
 
     <string-array name="pref_entries_back_behaviour">
-        <item>Always return to search view</item>
-        <item>Back to previous search item</item>
+        <item>Siempre volver a la busqueda principal</item>
+        <item>Volver a busqueda previa</item>
     </string-array>
     
     <string-array name="pref_entrie_values_back_behaviour">
@@ -15,11 +15,11 @@
         <item>prev_word</item>
     </string-array>
 
-    <string name="pref_summary_behaviour_back_to_search">Pressing back from the results view will always take you back to the Search view</string>
+    <string name="pref_summary_behaviour_back_to_search">La tecla retroceso te llevara siempre a la página principal de busqueda</string>
     <string name="pref_summary_behaviour_back_to_prev_word">
-        Pressing back from the results view will always take you back to the results of previous word search, if any. When none, it will default back to search view
+        La tecla de retroceso cargara el contenido de la busqueda previa, si no hay previa busqueda regresara a la página principal
         </string>
         
-    <string name="pref_title_clear_history">Clear Search History</string>
+    <string name="pref_title_clear_history">Borrar historial de busqueda</string>
 
 </resources>

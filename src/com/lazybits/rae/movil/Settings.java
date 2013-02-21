@@ -1,8 +1,16 @@
 package com.lazybits.rae.movil;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -13,12 +21,18 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.provider.SearchRecentSuggestions;
 import android.support.v4.app.NavUtils;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.lazybits.rae.movil.utils.DbManager;
 import com.lazybits.rae.movil.utils.SearchSuggestionsProvider;
 
+@SuppressLint("ValidFragment")
 public class Settings extends PreferenceActivity {
 
 	public static final String KEY_BACK_BEHAVIOR = "pref_title_back_behaviour";
@@ -106,7 +120,7 @@ public class Settings extends PreferenceActivity {
 			NavUtils.navigateUpFromSameTask(this);
 			return true;
 		case R.id.menu_about:
-			showAboutDialog();
+			showCustomAboutDialog();
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -134,18 +148,64 @@ public class Settings extends PreferenceActivity {
 		dialog.show();
 	}
 
-	protected void showAboutDialog() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);  		
-		builder.setMessage(R.string.about_author)
-		.setTitle(R.string.app_name)
-		.setCancelable(true).setNegativeButton(R.string.button_close, new OnClickListener() {				
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-			}
-		});
-		AlertDialog dialog = builder.create();
-		dialog.show();
+	protected void showCustomAboutDialog () {
+		FragmentManager fm = getFragmentManager();
+		FragmentTransaction ft = fm.beginTransaction();
+		Fragment prev = fm.findFragmentByTag("dialog_about");
+		if (prev != null) {
+			ft.remove(prev);
+		}
+		ft.addToBackStack(null);
+
+		new AboutDialog().show(ft, "dialog_about");
 	}
 
+	/**
+	 * Credits to Roman Nurik, I used the code available <a href="http://code.google.com/p/dashclock/source/browse/main/src/com/google/android/apps/dashclock/HelpUtils.java">here.</a>
+	 * @author Roman Nurik
+	 *
+	 */
+	private class AboutDialog extends DialogFragment {
+
+		private static final String VERSION_UNAVAILABLE = "N/A";
+
+		public AboutDialog() {
+		}
+
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			LayoutInflater layoutInflater = getActivity().getLayoutInflater();
+			View rootView = layoutInflater.inflate(R.layout.dialog_about, null);
+
+			PackageManager pm = getActivity().getPackageManager();
+			String packageName = getActivity().getPackageName();
+			String versionName;
+			try {
+				PackageInfo info = pm.getPackageInfo(packageName, 0);
+				versionName = info.versionName;
+			} catch (PackageManager.NameNotFoundException e) {
+				versionName = VERSION_UNAVAILABLE;
+			}
+
+			TextView header = (TextView) rootView.findViewById(
+					R.id.about_title);
+			header.setText(Html.fromHtml(getString(R.string.about_title, versionName)));
+
+			TextView body = (TextView) rootView.findViewById(R.id.about_body);
+			body.setText(Html.fromHtml(getString(R.string.about_details)));
+			body.setMovementMethod(new LinkMovementMethod());
+
+			return new AlertDialog.Builder(getActivity())
+			.setView(rootView)
+			.setPositiveButton(R.string.button_close,
+					new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					dialog.dismiss();
+				}
+			}
+					)
+					.create();
+		}
+
+	}
 }
