@@ -11,10 +11,10 @@
     <string name="menu_change_dictionary">Cambiar Diccionario</string>
     <string name="button_search">Buscar</string>
     <string name="button_clear">Borrar</string>
-    <string name="hint_busqueda">Escribe el termino a buscar</string>
+    <string name="hint_busqueda">Escribe el término a buscar</string>
     <string name="title_activity_results">Resultados</string>
     <string name="title_activity_settings">Configuración</string>
-    <string name="label_delete_history_alert">Esto eliminara todo tu historial de busquedas!</string>
+    <string name="label_delete_history_alert">Esto eliminará todo tu historial de búsquedas!</string>
 	<string name="label_no_html">No hay data a mostrar, favor revisar el termino ingresado, o tu conexión a internet</string>
 	<string name="title_dialog_select_dictionary">Escoje un diccionario: </string>
 	<string name="label_not_enough_chars">Favor ingresa una palabra de al menos dos letras</string>
@@ -23,12 +23,15 @@
         <item>@string/label_prehispanico</item>
     </string-array>
     <string name="button_close">Cerrar</string>
+    <string name="button_cancel">Cancelar</string>
     <string name="about_title" translatable="false"><![CDATA[
-        <b>RAE Móvil</b>&nbsp;<font color="#888888">v%1$s</font>
+        <b>RAE Móvil</b>&nbsp;<font color="#666666">v%1$s</font>
     ]]></string>
     <string name="about_details"><![CDATA[
-        <b>Creado por: Daniel Alvarado</b><br>
-        Codigo Fuente Disponible en: <a href="https://github.com/daniel-c05/RAEMovil">Github</a>
+        Creado por: Daniel Alvarado<br><br>
+        <a href="about:blank">Comparte tu opinión</a><br>
+        <a href="mailto:everest.deth@gmail.com">Reporta un problema</a><br>
+        Codigo Fuente Disponible en: <a href="https://github.com/daniel-c05/RAEMovil">Github</a>        
         ]]></string>
         
 </resources>

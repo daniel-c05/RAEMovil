@@ -138,7 +138,7 @@ public class Settings extends PreferenceActivity {
 				dialog.dismiss();
 			}
 		})
-		.setCancelable(true).setNegativeButton(android.R.string.cancel, new OnClickListener() {				
+		.setCancelable(true).setNegativeButton(R.string.button_cancel, new OnClickListener() {				
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();
@@ -161,7 +161,7 @@ public class Settings extends PreferenceActivity {
 	}
 
 	/**
-	 * Credits to Roman Nurik, I used the code available <a href="http://code.google.com/p/dashclock/source/browse/main/src/com/google/android/apps/dashclock/HelpUtils.java">here.</a>
+	 * Taken and modified from <a href="http://code.google.com/p/dashclock/source/browse/main/src/com/google/android/apps/dashclock/HelpUtils.java">here.</a>
 	 * @author Roman Nurik
 	 *
 	 */

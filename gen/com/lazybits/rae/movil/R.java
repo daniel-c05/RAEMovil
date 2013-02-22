@@ -16,6 +16,7 @@ public final class R {
     public static final class attr {
     }
     public static final class color {
+        public static final int light_gray=0x7f050003;
         public static final int rae_dark_blue=0x7f050001;
         public static final int rae_light_blue=0x7f050002;
         public static final int rae_red=0x7f050000;
@@ -50,9 +51,10 @@ public final class R {
         public static final int activity_settings=0x7f090002;
     }
     public static final class string {
-        public static final int about_details=0x7f060019;
-        public static final int about_title=0x7f060018;
+        public static final int about_details=0x7f06001a;
+        public static final int about_title=0x7f060019;
         public static final int app_name=0x7f060006;
+        public static final int button_cancel=0x7f060018;
         public static final int button_clear=0x7f06000f;
         public static final int button_close=0x7f060017;
         public static final int button_search=0x7f06000e;

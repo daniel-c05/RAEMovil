@@ -39,6 +39,9 @@ public class Home extends Activity implements OnEditorActionListener {
 		mResources = getResources();
 	}
 
+	/**
+	 * Initializa la interfaz de usuario. 
+	 */
 	private void setupViews() {
 		searchButton = (Button) findViewById(R.id.home_search);
 		clearButton = (Button) findViewById(R.id.home_clear);

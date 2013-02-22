@@ -3,4 +3,6 @@
     <color name="rae_red">#990000</color>
     <color name="rae_dark_blue">#272763</color>
     <color name="rae_light_blue">#9bb9f1</color>
+    <color name="light_gray">#666666</color>
+    
 </resources>

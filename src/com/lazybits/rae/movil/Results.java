@@ -1,5 +1,7 @@
 package com.lazybits.rae.movil;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.SearchManager;
@@ -9,6 +11,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.SearchRecentSuggestions;
 import android.support.v4.app.NavUtils;
 import android.view.KeyEvent;
@@ -34,8 +37,11 @@ public class Results extends Activity {
 	private String mTerm, mUrl, mHtmlData;
 	private SharedPreferences mPreferences;	
 	private SearchRecentSuggestions suggestions;
-	private int searchMode = SearchUtils.SEARCH_LENGUA;	//Search Lengua by default
-	private int searchModeRel = SearchUtils.SEARCH_LENGUA_REL;	//For webview clicks
+	private int searchMode = SearchUtils.SEARCH_LENGUA;	//Por defecto se busca en el diccionario de la lengua española
+	private int searchModeRel = SearchUtils.SEARCH_LENGUA_REL;	//Para manejar clicks dentro del Webview
+	
+	private ArrayList<String> searchHistory;
+	private int searchHistoryPos;	//Lleva cuenta de en que parte del historial de busquedas estamos.
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -44,14 +50,19 @@ public class Results extends Activity {
 
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 
-		mPreferences = getPreferences(MODE_PRIVATE);
+		mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		suggestions = new SearchRecentSuggestions(this,
 				SearchSuggestionsProvider.AUTHORITY, SearchSuggestionsProvider.MODE);
 
 		Bundle extras = getIntent().getExtras();
 
-		if (extras != null && extras.containsKey(EXTRA_TERM)) {					
+		if (extras != null && extras.containsKey(EXTRA_TERM)) {
+			//inicializa el array que contiene los terminos buscados en la sesión actual
+			searchHistory = new ArrayList<String>();
 			mTerm = extras.getString(EXTRA_TERM);
+			//agrega el termino a la historia.
+			searchHistory.add(mTerm);
+			searchHistoryPos = searchHistory.size() -1; 
 			searchMode = extras.getInt(EXTRA_SAERCH_MODE);
 			searchModeRel = extras.getInt(EXTRA_SAERCH_MODE_REL);
 			mUrl = SearchUtils.getSearchUrl(searchMode, mTerm);			
@@ -84,18 +95,22 @@ public class Results extends Activity {
 
 			Constants.LogMessage("Url clicked: " + url);
 
+			//Si el url que se esta manejando contiene la clave correcta "searchId?", maneja el click. 
 			if (url.contains(SearchUtils.RELATED_SEARCH_KEY)) {
 				if (!url.startsWith("http://")) {
-					//If the search is a related term, handle the search. 
+					//Si el url no es en si un url construido, el url sera el termino de busqueda.
 					mTerm = url;
-					//we prefer lengua/prehispanico rel, and not searchMode as this is only when handling webview clicks
+					//Se usa searchModeRel porque estamos manejando clicks dentro del webview y no una busqueda formal 
 					url = SearchUtils.getSearchUrl(searchModeRel, url);					
 				}
 				else {
+					//Si el url es realmente un url construido, obtengamos el termino mediante nuestros searchutils.
 					mTerm = SearchUtils.getSearchTerm(searchModeRel, url);						    		
 				}
 
 				Constants.LogMessage("Url is now: " + url);
+				searchHistory.add(mTerm);
+				searchHistoryPos = searchHistory.size() -1; 
 				mHtmlData = DbManager.getSearchHtmlData(url);
 				if (mHtmlData == null || mHtmlData == "") {
 					Constants.LogMessage("Data not loaded from database, calling asynctask");
@@ -108,13 +123,7 @@ public class Results extends Activity {
 				return true;
 			}	    	
 
-			if (Uri.parse(url).getHost().equals(SearchUtils.HOST_URL)) {
-				//If the search host is from RAE then let the webview load the url.
-				//This never happens
-				return false;
-			}
-
-			// Otherwise, the link is not for a page on my site, so launch another Activity that handles URLs
+			//De lo contrario deja que el sistema maneje el nuevo click
 			Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 			startActivity(intent);
 			return true;
@@ -124,6 +133,7 @@ public class Results extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_results, menu);
+		//Infla y prepara el search widget para manejar futuras busquedas sin volver a la actividad principal. 
 		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 		SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
 		searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
@@ -140,12 +150,15 @@ public class Results extends Activity {
 	}
 
 	/**
-	 * Requery RAE's database for the new query term. The method will attempt to query offline db first, if no results, it will attempt to load from RAE.es
+	 * A partir de un nuevo string query, intenta cargar la informacion de la base de datos local, de no encontrar datos
+	 * vuelve a buscar en internet y almacena los resultados.
 	 * @param query The term to query
 	 */
 	private void showNewResults(String query) {
 		Constants.LogMessage(query);
 		mTerm = query;
+		searchHistory.add(mTerm);
+		searchHistoryPos = searchHistory.size() -1; 
 		suggestions.saveRecentQuery(mTerm, null);
 		mUrl = SearchUtils.getSearchUrl(searchMode, mTerm);
 		Constants.LogMessage(mUrl);			
@@ -179,18 +192,45 @@ public class Results extends Activity {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {		
 
-		if (keyCode == KeyEvent.KEYCODE_SEARCH) {
-			Constants.LogMessage("Handling search keyevent");
-			return true;
-		}
-
 		// Check if the key event was the Back button and if there's history
-		if ((keyCode == KeyEvent.KEYCODE_BACK) && webView.canGoBack()) {
+		if ((keyCode == KeyEvent.KEYCODE_BACK) && searchHistoryPos > 0) {
 			Constants.LogMessage("Handling back keyevent");
 			//Check saved prefs to see if user disabled back click handling
 			if (mPreferences.getString(Settings.KEY_BACK_BEHAVIOR, "search").equals("prev_word")) {
 				Constants.LogMessage("Going to previous search term");
-				webView.goBack();
+				//Remueve el ultimo item buscado.
+				searchHistory.remove(mTerm);
+				searchHistoryPos = searchHistory.size() -1; 
+				
+				mTerm = searchHistory.get(searchHistoryPos);
+				boolean isRel = false;
+				
+				if (mTerm.contains(SearchUtils.RELATED_SEARCH_KEY)) {
+					//El termino anterior era una busqueda relacionada? 
+					mUrl = SearchUtils.getSearchUrl(searchModeRel, mTerm);
+					isRel = true;
+				}
+				else {
+					//Si no lo era, obten la informacion normal. 
+					mUrl = SearchUtils.getSearchUrl(searchMode, mTerm);
+					isRel = false;
+				}
+				
+				mHtmlData = DbManager.getSearchHtmlData(mUrl);
+				
+				if (mHtmlData == null || mHtmlData == "") {
+					Constants.LogMessage("Data not loaded from database, calling asynctask");
+					if (isRel) {
+						new GetSearchHtmlAsync(webView, searchModeRel).execute(mTerm);
+					}
+					else {
+						new GetSearchHtmlAsync(webView, searchMode).execute(mTerm);
+					}											
+				}
+				else {
+					Constants.LogMessage("Data loaded from database, loading to webview now");
+					webView.loadDataWithBaseURL(mUrl, mHtmlData, SearchUtils.MIME_TYPE, SearchUtils.CHARSET, "");
+				}				
 				return true;
 			}	        
 		}

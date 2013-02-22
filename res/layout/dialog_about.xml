@@ -14,15 +14,13 @@
         android:layout_marginTop="8dp"
         android:drawableLeft="@drawable/ic_launcher"
         android:drawablePadding="8dp"
-        android:fontFamily="sans-serif-condensed"
         android:gravity="center_vertical"
         android:textSize="24sp" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="?android:attr/dividerVertical"
-	/>
+        android:background="?android:attr/dividerVertical" />
 
     <TextView
         android:id="@+id/about_body"
