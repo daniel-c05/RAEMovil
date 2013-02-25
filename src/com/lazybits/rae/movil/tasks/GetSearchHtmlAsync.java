@@ -68,12 +68,11 @@ public class GetSearchHtmlAsync extends AsyncTask<String, Void, String> {
 	@Override
 	protected void onPostExecute (String htmlData) {
 		Constants.LogMessage("OnPostExecute");
-		//Save and associate html data to url only if the data exists. 
+		//Guarda y asocia la data solo si la data se descargo bien. 
 		if (htmlData != null && htmlData != "") {
 			if (mWebView != null) {
 				Constants.LogMessage("Loading to webview");
-				DbManager.addSearchToDatabase(mTerm, mUrl, htmlData);
-				//There is no url provided as it isn't needed.
+				DbManager.addSearchToDatabase(mWebView.getContext(), mTerm, mSearchMode, mUrl, htmlData);
 				mWebView.loadDataWithBaseURL(mUrl, htmlData, SearchUtils.MIME_TYPE, SearchUtils.CHARSET, "");
 				mWebView.scrollTo(0, 0);
 			}			

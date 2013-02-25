@@ -2,6 +2,7 @@ package com.lazybits.rae.movil;
 
 import java.util.ArrayList;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.SearchManager;
@@ -27,6 +28,7 @@ import com.lazybits.rae.movil.utils.DbManager;
 import com.lazybits.rae.movil.utils.SearchSuggestionsProvider;
 import com.lazybits.rae.movil.utils.SearchUtils;
 
+@SuppressLint("DefaultLocale")
 public class Results extends Activity {
 
 	public static final String EXTRA_TERM = "term";
@@ -34,6 +36,7 @@ public class Results extends Activity {
 	public static final String EXTRA_SAERCH_MODE_REL = "mode-rel";
 
 	private WebView webView;
+	SearchView searchView; 	//El widget de busqueda
 	private String mTerm, mUrl, mHtmlData;
 	private SharedPreferences mPreferences;	
 	private SearchRecentSuggestions suggestions;
@@ -68,7 +71,7 @@ public class Results extends Activity {
 			mUrl = SearchUtils.getSearchUrl(searchMode, mTerm);			
 			suggestions.saveRecentQuery(mTerm, null);
 			Constants.LogMessage(mUrl);			
-			mHtmlData = DbManager.getSearchHtmlData(mUrl);
+			mHtmlData = DbManager.getSearchHtmlData(this, mUrl);
 		}		
 
 		webView = (WebView) findViewById(R.id.results_webview);
@@ -111,7 +114,7 @@ public class Results extends Activity {
 				Constants.LogMessage("Url is now: " + url);
 				searchHistory.add(mTerm);
 				searchHistoryPos = searchHistory.size() -1; 
-				mHtmlData = DbManager.getSearchHtmlData(url);
+				mHtmlData = DbManager.getSearchHtmlData(Results.this, url);
 				if (mHtmlData == null || mHtmlData == "") {
 					Constants.LogMessage("Data not loaded from database, calling asynctask");
 					new GetSearchHtmlAsync(view, searchModeRel).execute(mTerm);
@@ -135,7 +138,7 @@ public class Results extends Activity {
 		getMenuInflater().inflate(R.menu.activity_results, menu);
 		//Infla y prepara el search widget para manejar futuras busquedas sin volver a la actividad principal. 
 		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-		SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+		searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
 		searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 		searchView.setIconifiedByDefault(false);
 		return true;
@@ -145,24 +148,26 @@ public class Results extends Activity {
 	public void onNewIntent (Intent intent) {
 		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 			String query = intent.getStringExtra(SearchManager.QUERY);
-			showNewResults(query);
+			//Esto ya deberia ser minusculas, pero por si acaso.
+			showNewResults(query.toLowerCase());
 		}
 	}
 
 	/**
 	 * A partir de un nuevo string query, intenta cargar la informacion de la base de datos local, de no encontrar datos
 	 * vuelve a buscar en internet y almacena los resultados.
-	 * @param query The term to query
+	 * @param query El termino a buscar
 	 */
 	private void showNewResults(String query) {
 		Constants.LogMessage(query);
-		mTerm = query;
+		//una vez mas, a buscar como evitar duplicados
+		mTerm = query.toLowerCase();
 		searchHistory.add(mTerm);
 		searchHistoryPos = searchHistory.size() -1; 
 		suggestions.saveRecentQuery(mTerm, null);
 		mUrl = SearchUtils.getSearchUrl(searchMode, mTerm);
 		Constants.LogMessage(mUrl);			
-		mHtmlData = DbManager.getSearchHtmlData(mUrl);
+		mHtmlData = DbManager.getSearchHtmlData(this, mUrl);
 		if (mHtmlData == null || mHtmlData == "") {
 			Constants.LogMessage("Data not loaded from database, calling asynctask");
 			new GetSearchHtmlAsync(webView, searchMode).execute(mTerm);
@@ -185,6 +190,7 @@ public class Results extends Activity {
 			return true;
 		case R.id.menu_change_dictionary:
 			showChangeDictionary();
+			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -192,10 +198,10 @@ public class Results extends Activity {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {		
 
-		// Check if the key event was the Back button and if there's history
+		//Revisa si el keypress fue de la tecla back, y si tenemos historial de busqueda
 		if ((keyCode == KeyEvent.KEYCODE_BACK) && searchHistoryPos > 0) {
 			Constants.LogMessage("Handling back keyevent");
-			//Check saved prefs to see if user disabled back click handling
+			//Revisa si la navegacion atras esta habilitada o si debemos regresar a la pagina principal de busqueda
 			if (mPreferences.getString(Settings.KEY_BACK_BEHAVIOR, "search").equals("prev_word")) {
 				Constants.LogMessage("Going to previous search term");
 				//Remueve el ultimo item buscado.
@@ -216,7 +222,7 @@ public class Results extends Activity {
 					isRel = false;
 				}
 				
-				mHtmlData = DbManager.getSearchHtmlData(mUrl);
+				mHtmlData = DbManager.getSearchHtmlData(this, mUrl);
 				
 				if (mHtmlData == null || mHtmlData == "") {
 					Constants.LogMessage("Data not loaded from database, calling asynctask");
@@ -233,6 +239,11 @@ public class Results extends Activity {
 				}				
 				return true;
 			}	        
+		}
+		
+		else if (keyCode == KeyEvent.KEYCODE_SEARCH) {
+			//No hagas nada, proximamente intentaremos expandir el widget de busqueda.
+			return true;
 		}
 
 		return super.onKeyDown(keyCode, event);

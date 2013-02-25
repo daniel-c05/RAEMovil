@@ -38,7 +38,7 @@ public class Settings extends PreferenceActivity {
 	public static final String KEY_BACK_BEHAVIOR = "pref_title_back_behaviour";
 	public static final String KEY_DELETE_HISTORY = "pref_title_clear_history";
 
-	Preference mSmsLimitPref;
+	Preference deleteHistoryPref;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +50,7 @@ public class Settings extends PreferenceActivity {
 	@SuppressWarnings("deprecation")
 	private void loadPrefs() {
 		addPreferencesFromResource(R.xml.preferences);   	
-		mSmsLimitPref = findPreference(KEY_DELETE_HISTORY);
+		deleteHistoryPref = findPreference(KEY_DELETE_HISTORY);
 		bindPreferenceSummaryToValue(findPreference(KEY_BACK_BEHAVIOR));		
 	}
 
@@ -90,8 +90,8 @@ public class Settings extends PreferenceActivity {
 	@Override
 	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
 			Preference preference) {
-		if (preference == mSmsLimitPref) {
-			//Show a dialog that ensures user doesn't clear database by mistake.
+		if (preference == deleteHistoryPref) {
+			//Muestra un dialogo para evitar que el usuario borre la base de datos por error.
 			showDeleteHistoryDialog();
 		}
 		return super.onPreferenceTreeClick(preferenceScreen, preference);
@@ -131,7 +131,7 @@ public class Settings extends PreferenceActivity {
 		.setPositiveButton(android.R.string.ok, new OnClickListener() {				
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				DbManager.deleteSearchHistory();
+				DbManager.deleteSearchHistory(Settings.this);
 				SearchRecentSuggestions suggestions = new SearchRecentSuggestions(Settings.this,
 						SearchSuggestionsProvider.AUTHORITY, SearchSuggestionsProvider.MODE);
 				suggestions.clearHistory();
@@ -161,7 +161,7 @@ public class Settings extends PreferenceActivity {
 	}
 
 	/**
-	 * Taken and modified from <a href="http://code.google.com/p/dashclock/source/browse/main/src/com/google/android/apps/dashclock/HelpUtils.java">here.</a>
+	 * Tomado y modificado a partir de <a href="http://code.google.com/p/dashclock/source/browse/main/src/com/google/android/apps/dashclock/HelpUtils.java">here.</a>
 	 * @author Roman Nurik
 	 *
 	 */
@@ -176,12 +176,14 @@ public class Settings extends PreferenceActivity {
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 			View rootView = layoutInflater.inflate(R.layout.dialog_about, null);
-
+			
 			PackageManager pm = getActivity().getPackageManager();
+			//Nombre del paquete: "RAE Movil"
 			String packageName = getActivity().getPackageName();
 			String versionName;
 			try {
 				PackageInfo info = pm.getPackageInfo(packageName, 0);
+				//Nombre de la version tomado del manifest
 				versionName = info.versionName;
 			} catch (PackageManager.NameNotFoundException e) {
 				versionName = VERSION_UNAVAILABLE;

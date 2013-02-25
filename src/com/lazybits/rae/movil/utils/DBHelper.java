@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DBHelper extends SQLiteOpenHelper {
 	
-	public static final String DB_NAME = "RAEdb";
+	private static final String DB_NAME = "RAEdb";	//unused
 	private static final int DB_VERSION = 1;
 	
 	public static final String TABLE_NAME = "savedSearches";
@@ -18,12 +18,14 @@ public class DBHelper extends SQLiteOpenHelper {
 	public static final String TERM = "term";
 	public static final String URL = "url";
 	public static final String DATA = "data";
+	public static final String SEARCH_MODE = "mode";
 	
 	public static final String [] ALL_COLS = {
 		_ID,
 		TERM,
+		SEARCH_MODE,
 		URL,
-		DATA
+		DATA,
 	};
 	
 	public static final String DEFAULT_SORT_ORDER = TERM;
@@ -31,6 +33,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_CREATE = "create table " + TABLE_NAME 
 			+ "(" + _ID + " integer primary key autoincrement, " 
 			+ TERM + " text not null, " 
+			+ SEARCH_MODE + " integer not null, "
 			+ URL + " text not null, "
 			+ DATA + " text not null);"
 			;

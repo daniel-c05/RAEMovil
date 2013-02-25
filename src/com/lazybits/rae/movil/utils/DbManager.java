@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.lazybits.rae.movil.Constants;
 
@@ -13,7 +14,7 @@ public class DbManager {
 	private static DBHelper mHelper;
 	private static SQLiteDatabase mDatabase;
 	
-	public static void open (Context context) {
+	private static void open (Context context) {
 		if (mDatabase != null && mDatabase.isOpen()) {
 			return;
 		}
@@ -25,71 +26,108 @@ public class DbManager {
 		}
 	}
 	
-	public static void close () {
-		mDatabase.close();
+	private static void close () {
+		if (mDatabase != null) {
+			mDatabase.close();
+		}		
 	}
 	
 	/**
-	 * Saves the search information to the database for further offline access. 
-	 * 
-	 * @param term The actual search term. 
-	 * @param url The url corresponding to the search term. 
-	 * @param data The data obtained from the url.
-	 * @return The id of the search that was saved successfully, or -1 if the write failed.
+	 * Guarda la informacion para futuro accesso de la misma
+	 * @param context El contexto utilizado para abrir la base de datos
+	 * @param termino El termino de busqueda. 
+	 * @param url El url correspondiente al termino de busqueda. 
+	 * @param data La data obtenida del url.
+	 * @return El id de la busqueda que se almacenoy, or -1 if the write failed.
 	 */
-	public static long addSearchToDatabase (String term, String url, String data) {
+	public static long addSearchToDatabase (Context context, String termino, int isRel, String url, String data) {
+		
+		
+		if (mDatabase == null || !mDatabase.isOpen())
+			open(context);	
 
 		ContentValues mValues = new ContentValues();
-		mValues.put(DBHelper.TERM, term);
+		mValues.put(DBHelper.TERM, termino);
+		mValues.put(DBHelper.SEARCH_MODE, isRel);
 		mValues.put(DBHelper.URL, url);
 		mValues.put(DBHelper.DATA, data);		
 		
-		long _id = mDatabase.insert(DBHelper.TABLE_NAME, null, mValues);		
+		long _id = mDatabase.insert(DBHelper.TABLE_NAME, null, mValues);	
+		
+		close();
 		
 		return _id;
 		
 	}
 	
 	/**
-	 * Deletes a search record corresponding to the supplied id.
+	 * Elimina una entrada en la base de datos para el id suplementado
+	 * @param context El contexto utilizado para abrir la base de datos
 	 * @param _id The id of the search record. 
 	 */
-	public static void deleteSearchFromDb (long _id) {	
+	public static void deleteSearchFromDb (Context context, long _id) {
+		
+		if (mDatabase == null || !mDatabase.isOpen())
+			open(context);	
 		
 		String where = DBHelper._ID + " = '" + _id + "'";		
 		mDatabase.delete(DBHelper.TABLE_NAME, where, null);
+		
+		close();
 	}
 	
 	/**
-	 * Deletes all data rows from the search records table.
+	 * Elimina todas las entradas de la base de datos.
+	 * @param context El contexto utilizado para abrir la base de datos
 	 */
-	public static void deleteSearchHistory () {	
+	public static void deleteSearchHistory (Context context) {	
+		
+		if (mDatabase == null || !mDatabase.isOpen())
+			open(context);	
 		
 		mDatabase.delete(DBHelper.TABLE_NAME, null, null);	
+		Toast.makeText(context, "Historial de busqueda eliminado!", Toast.LENGTH_SHORT).show();
+		
+		close();
 	}		
 	
 	/**
-	 * Provides details on a search record for the supplied _id. 
-	 * @param _id The id of the search record on the database. 
-	 * @return A Bundle that contains the search term, the url for the search itself, and the data associated. 
+	 * Provee los detalles de un record correspondientes al id suplido. 
+	 * @param context El contexto utilizado para abrir la base de datos
+	 * @param _id El id asociado al record en la base de datos. 
+	 * @return Un Bundle que contiene el termino de busqueda, el url, y la data asociada al id. 
 	 */
-	public static Bundle getSearchInfo (long _id) {
+	public static Bundle getSearchInfo (Context context, long _id) {
+		
+		if (mDatabase == null || !mDatabase.isOpen())
+			open(context);	
+		
 		Bundle info = new Bundle();
 		String where = DBHelper._ID + " = '" + _id + "'";
 		Cursor cursor = mDatabase.query(DBHelper.TABLE_NAME, DBHelper.ALL_COLS, where, null, null, null, DBHelper.DEFAULT_SORT_ORDER);
 		
 		if (cursor.moveToFirst()) {
 			info.putString(DBHelper.TERM, cursor.getString(1));
-			info.putString(DBHelper.URL, cursor.getString(2));
-			info.putString(DBHelper.DATA, cursor.getString(3));
+			info.putString(DBHelper.URL, cursor.getString(3));
+			info.putString(DBHelper.DATA, cursor.getString(4));
 		}
 		
 		cursor.close();
+		close();
 		
 		return info;
 	}
 	
-	public static String getSearchHtmlData (String url) {	
+	/**
+	 * Utilizado para retirar solamente el codigo html almacenado para el url suplementado. 
+	 * @param context El contexto utilizado para abrir la base de datos
+	 * @param url El url a buscar en la tabla
+	 * @return
+	 */
+	public static String getSearchHtmlData (Context context, String url) {	
+		
+		if (mDatabase == null || !mDatabase.isOpen())
+			open(context);	
 		
 		String where = DBHelper.URL + " = '" + url + "'";
 		Cursor cursor = mDatabase.query(DBHelper.TABLE_NAME, DBHelper.ALL_COLS, where, null, null, null, DBHelper.DEFAULT_SORT_ORDER);
@@ -97,20 +135,25 @@ public class DbManager {
 		String data = "";
 		
 		if (cursor.moveToFirst()) {
-			data = cursor.getString(3);
+			data = cursor.getString(4);
 		}
 		
 		cursor.close();
+		close();
 		
 		return data;
 	}
 	
 	/**
-	 * Provides details on a search record for the supplied url.
-	 * @param url The url for the search term.
-	 * @return A Bundle that contains the _id of the search, the search term itself, and the data associated.
+	 * Provee detalles de un record de busqueda para el id suplementado
+	 * @param context El contexto utilizado para abrir la base de datos
+	 * @param url El url del parametro de busqueda
+	 * @return Un Bundle de datos que contiene el id del record, el termino de busqueda, y el html almacenado. 
 	 */
-	public static Bundle getSearchInfo (String url) {
+	public static Bundle getSearchInfo (Context context, String url) {
+		
+		if (mDatabase == null || !mDatabase.isOpen())
+			open(context);	
 		
 		Bundle info = new Bundle();
 		String where = DBHelper.URL + " = '" + url + "'";
@@ -119,20 +162,52 @@ public class DbManager {
 		if (cursor.moveToFirst()) {
 			info.putLong(DBHelper._ID, cursor.getLong(0));
 			info.putString(DBHelper.TERM, cursor.getString(1));
-			info.putString(DBHelper.DATA, cursor.getString(3));
+			info.putString(DBHelper.DATA, cursor.getString(4));
 		}
 		
 		cursor.close();
+		close();
 		
 		return info;
 	}
 	
 	/**
-	 * Provides the ability to use a Cursor with all table items on an adapter. See {@link SearchUtils} for details on usage. 
-	 * @return A cursor for all table items on the database. 
+	 * Provee la abilidad de usar un {@link Cursor} para accesar y retirar los datos de todos los items en la tabla. 
+	 * Favor ver {@link SearchUtils} para mas detalles en su uso en este proyecto. 
+	 * @param context El contexto utilizado para abrir la base de datos
+	 * @return Un Cursor con todos los items en la tabla.  
 	 */
-	public static Cursor getSearchHistory () {
-		return mDatabase.query(DBHelper.TABLE_NAME, DBHelper.ALL_COLS, null, null, null, null, DBHelper.DEFAULT_SORT_ORDER);				
+	public static Cursor getSearchHistory (Context context) {
+		if (mDatabase == null || !mDatabase.isOpen())
+			open(context);		
+		
+		String where = DBHelper.SEARCH_MODE + " = '" + SearchUtils.SEARCH_LENGUA + " ' or " + 
+				DBHelper.SEARCH_MODE + " = '" + SearchUtils.SEARCH_PREHISPANICO + " '";
+		
+		close();
+		
+		return mDatabase.query(DBHelper.TABLE_NAME, DBHelper.ALL_COLS, where, null, null, null, DBHelper.DEFAULT_SORT_ORDER);				
+	}
+	
+	public static Cursor getSearchSuggestions (Context context, int mode, String query) {
+		
+		Constants.LogMessage("Getting suggestions for: " + query);
+		
+		if (mDatabase == null || !mDatabase.isOpen())
+			open(context);		
+		
+		String where = DBHelper.SEARCH_MODE + " = '" + mode + "' and " + 
+				DBHelper.TERM + " like '%" + query + "%'";
+		
+		Cursor cursor = mDatabase.query(DBHelper.TABLE_NAME, DBHelper.ALL_COLS, where, null, null, null, DBHelper.DEFAULT_SORT_ORDER);
+		
+		if (cursor.moveToFirst()) {
+			Constants.LogMessage("Cursor lenght: " + cursor.getCount());
+		}
+		
+		close();
+		
+		return cursor;
 	}
 
 }

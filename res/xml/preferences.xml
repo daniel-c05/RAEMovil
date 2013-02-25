@@ -21,7 +21,8 @@
             android:title="@string/pref_title_back_behaviour"
             android:key="pref_title_back_behaviour"
             android:entries="@array/pref_entries_back_behaviour"  
-            android:entryValues="@array/pref_entrie_values_back_behaviour"           
+            android:entryValues="@array/pref_entries_values_back_behaviour"  
+            android:defaultValue="@string/pref_default_back_behaviour"         
             />
         
     </PreferenceCategory>

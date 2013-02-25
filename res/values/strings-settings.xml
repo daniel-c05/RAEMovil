@@ -6,18 +6,20 @@
     <string name="pref_title_back_behaviour">Comportamiento de tecla retroceso</string>
 
     <string-array name="pref_entries_back_behaviour">
-        <item>Siempre volver a la busqueda principal</item>
-        <item>Volver a busqueda previa</item>
+        <item>Siempre volver a la búsqueda principal</item>
+        <item>Volver a búsqueda previa</item>
     </string-array>
     
-    <string-array name="pref_entrie_values_back_behaviour">
+    <string name="pref_default_back_behaviour">prev_word</string>
+    
+    <string-array name="pref_entries_values_back_behaviour">
         <item>search</item>
         <item>prev_word</item>
     </string-array>
 
-    <string name="pref_summary_behaviour_back_to_search">La tecla retroceso te llevara siempre a la página principal de busqueda</string>
+    <string name="pref_summary_behaviour_back_to_search">La tecla retroceso te llevará siempre a la página principal de búsqueda</string>
     <string name="pref_summary_behaviour_back_to_prev_word">
-        La tecla de retroceso cargara el contenido de la busqueda previa, si no hay previa busqueda regresara a la página principal
+        La tecla de retroceso cargará el contenido de la búsqueda previa, si no hay previa búsqueda regresará a la página principal
         </string>
         
     <string name="pref_title_clear_history">Borrar historial de busqueda</string>

@@ -28,7 +28,7 @@
         <b>RAE Móvil</b>&nbsp;<font color="#666666">v%1$s</font>
     ]]></string>
     <string name="about_details"><![CDATA[
-        Creado por: Daniel Alvarado<br><br>
+        <b><font color="#666666">Creado por Daniel Alvarado</font></b><br><br>
         <a href="about:blank">Comparte tu opinión</a><br>
         <a href="mailto:everest.deth@gmail.com">Reporta un problema</a><br>
         Codigo Fuente Disponible en: <a href="https://github.com/daniel-c05/RAEMovil">Github</a>        

@@ -8,11 +8,9 @@ import android.annotation.SuppressLint;
 public class SearchUtils {
 	
 	private static final String LENGUA_BASE_SEARCH_URL = "http://lema.rae.es/drae/srv/search?val=";
-	public static final String LENGUA_RELATED_URL = "http://lema.rae.es/drae/srv/";
+	private static final String LENGUA_RELATED_URL = "http://lema.rae.es/drae/srv/";
 	private static final String PREHISPANICO_BASE_SEARCH_URL = "http://lema.rae.es/dpd/srv/search?key=";
-	public static final String PREHISPANICO_RELATED_URL = "http://lema.rae.es/dpd/srv/";
-	
-	public static final String HOST_URL = "lema.rae.es";
+	private static final String PREHISPANICO_RELATED_URL = "http://lema.rae.es/dpd/srv/";
 	
 	public static final int SEARCH_LENGUA = 0001;
 	public static final int SEARCH_PREHISPANICO = 0002;
@@ -21,7 +19,6 @@ public class SearchUtils {
 	
 	public static final String MIME_TYPE = "text/html";
 	public static final String CHARSET = "utf-8";
-	
 	
 	public static final String RELATED_SEARCH_KEY = "search?id=";
 	
@@ -44,8 +41,8 @@ public class SearchUtils {
 	}
 
 	/**
-	 * Utility to get the search term from a supplied url
-	 * @param searchMode The search mode we are using, could be {@link #SEARCH_LENGUA}, {@link #SEARCH_LENGUA_REL}, or {@link #SEARCH_PREHISPANICO}
+	 * Utilidad para obtener el termino de busqueda a partir de un Url
+	 * @param searchMode El modo en que estamos buscando, puede ser {@link #SEARCH_LENGUA}, {@link #SEARCH_LENGUA_REL}, {@link #SEARCH_PREHISPANICO}, or {@link #SEARCH_PREHISPANICO_REL}
 	 * @param url The url to retrieve the search term from
 	 * @return the search term itself
 	 */
@@ -55,17 +52,16 @@ public class SearchUtils {
 		int end = 0;
 		
 		switch (searchMode) {
+		//Si es una busqueda por termino
 		case SEARCH_LENGUA:
 		case SEARCH_PREHISPANICO:
 			start = url.indexOf("=") + 1;
 			end = url.length();
 			break;
-		case SEARCH_LENGUA_REL: 
-			start = url.lastIndexOf("/") +1;
-			end = url.length();
-			break;
+		//Si es una busqueda por termino relacionado (clicks dentro del webview		
+		case SEARCH_LENGUA_REL:
 		case SEARCH_PREHISPANICO_REL:
-			start = url.lastIndexOf("/") +1;
+			start = url.lastIndexOf("/") + 1;
 			end = url.length();
 			break;
 		default:
@@ -79,16 +75,16 @@ public class SearchUtils {
 	}
 	
 	/**
-	 * Taken from <a href="https://github.com/android/platform_packages_apps_browser/blob/master/src/com/android/browser/DownloadHandler.java">Android Developers</a>
-	 * @param path The path to encode
-	 * @return A new encoded path, or the same path if no mods needed. 
+	 * Tomado y modificado a partir de <a href="https://github.com/android/platform_packages_apps_browser/blob/master/src/com/android/browser/DownloadHandler.java">Android Developers</a>
+	 * @param path El url a codificar
+	 * @return Un nuevo url codificado para uso sin problemas 
 	 */
 	public static String encodePath(String path) {
         char[] chars = path.toCharArray();
 
         boolean needed = false;
         for (char c : chars) {
-            if (c == '[' || c == ']' || c == '|') {
+            if (c == '[' || c == ']' || c == '|' || c == 'ñ' || c == 'á' || c == 'é' || c == 'í' || c == 'ó' || c == 'ú' || c == 'ü') {
                 needed = true;
                 break;
             }
@@ -99,7 +95,7 @@ public class SearchUtils {
 
         StringBuilder sb = new StringBuilder("");
         for (char c : chars) {
-            if (c == '[' || c == ']' || c == '|') {
+            if (c == '[' || c == ']' || c == '|' || c == 'ñ' || c == 'á' || c == 'é' || c == 'í' || c == 'ó' || c == 'ú' || c == 'ü') {
                 sb.append('%');
                 sb.append(Integer.toHexString(c));
             } else {
