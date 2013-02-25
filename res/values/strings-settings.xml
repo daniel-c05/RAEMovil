@@ -22,6 +22,6 @@
         La tecla de retroceso cargará el contenido de la búsqueda previa, si no hay previa búsqueda regresará a la página principal
         </string>
         
-    <string name="pref_title_clear_history">Borrar historial de busqueda</string>
+    <string name="pref_title_clear_history">Borrar historial de búsqueda</string>
 
 </resources>
