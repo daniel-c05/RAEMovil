@@ -1,8 +1,14 @@
 package com.lazybits.rae.movil.utils;
 
-import com.lazybits.rae.movil.Constants;
-
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.os.Build;
+import android.view.View;
+import android.webkit.WebView;
+
+import com.lazybits.rae.movil.Constants;
 
 @SuppressLint("DefaultLocale")
 public class SearchUtils {
@@ -21,6 +27,47 @@ public class SearchUtils {
 	public static final String CHARSET = "utf-8";
 	
 	public static final String RELATED_SEARCH_KEY = "search?id=";
+	
+	/**
+	 * Metodo estatico que permite esconder o mostrar la barra de progreso como elemento visual
+	 * que le deja saber al usuario que los datos estan cargando. 
+	 * 
+	 * @param context El contexto
+	 * @param progress El contenedor de la barra de progreso. 
+	 * @param results El webview que contiene los resultados
+	 * @param show Si se mostrara o escondera la barra de progreso
+	 */
+	public static void showProgress (final Context context, final View progress, final WebView results, final boolean show) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+			int shortAnimTime = context.getResources().getInteger(
+					android.R.integer.config_shortAnimTime);
+
+			progress.setVisibility(View.VISIBLE);
+			progress.animate().setDuration(shortAnimTime)
+					.alpha(show ? 1 : 0)
+					.setListener(new AnimatorListenerAdapter() {
+						@Override
+						public void onAnimationEnd(Animator animation) {
+							progress.setVisibility(show ? View.VISIBLE
+									: View.GONE);
+						}
+					});
+
+			results.setVisibility(View.VISIBLE);
+			results.animate().setDuration(shortAnimTime)
+					.alpha(show ? 0 : 1)
+					.setListener(new AnimatorListenerAdapter() {
+						@Override
+						public void onAnimationEnd(Animator animation) {
+							results.setVisibility(show ? View.GONE
+									: View.VISIBLE);
+						}
+					});
+		} else {
+			progress.setVisibility(show ? View.VISIBLE : View.GONE);
+			results.setVisibility(show ? View.GONE : View.VISIBLE);
+		}
+	}
 	
 	public static String getSearchUrl (int searchMode, String word) {		
 		

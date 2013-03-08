@@ -18,6 +18,8 @@
 	<string name="label_no_html">No hay data a mostrar, favor revisar el termino ingresado, o tu conexión a internet</string>
 	<string name="title_dialog_select_dictionary">Escoje un diccionario: </string>
 	<string name="label_not_enough_chars">Favor ingresa una palabra de al menos dos letras</string>
+	<string name="label_loading_results">Cargando resulados..</string>
+	<string name="error_connection_timeout">La operación esta tomando demasiado tiempo, favor intentar de nuevo o revisar el estado de su conexión a internet.</string>
 	<string-array name="array_dictionary_selecton">
         <item>@string/label_lengua</item>
         <item>@string/label_prehispanico</item>
@@ -29,7 +31,6 @@
     ]]></string>
     <string name="about_details"><![CDATA[
         <b><font color="#666666">Creado por Daniel Alvarado</font></b><br><br>
-        <a href="about:blank">Comparte tu opinión</a><br>
         <a href="mailto:everest.deth@gmail.com">Reporta un problema</a><br>
         Codigo Fuente Disponible en: <a href="https://github.com/daniel-c05/RAEMovil">Github</a>        
         ]]></string>

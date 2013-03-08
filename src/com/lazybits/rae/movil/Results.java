@@ -18,10 +18,13 @@ import android.support.v4.app.NavUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.SearchView;
+import android.widget.SearchView.OnQueryTextListener;
+import android.widget.SearchView.OnSuggestionListener;
 
 import com.lazybits.rae.movil.tasks.GetSearchHtmlAsync;
 import com.lazybits.rae.movil.utils.DbManager;
@@ -36,7 +39,8 @@ public class Results extends Activity {
 	public static final String EXTRA_SAERCH_MODE_REL = "mode-rel";
 
 	private WebView webView;
-	SearchView searchView; 	//El widget de busqueda
+	private SearchView searchView; 	//El widget de busqueda
+	private MenuItem searchMenu;	//El menu item que corresponde a la busqueda, utilizado para colapsar o mostrar el widget. 
 	private String mTerm, mUrl, mHtmlData;
 	private SharedPreferences mPreferences;	
 	private SearchRecentSuggestions suggestions;
@@ -45,6 +49,7 @@ public class Results extends Activity {
 	
 	private ArrayList<String> searchHistory;
 	private int searchHistoryPos;	//Lleva cuenta de en que parte del historial de busquedas estamos.
+	private View mLoginStatusView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -58,9 +63,13 @@ public class Results extends Activity {
 				SearchSuggestionsProvider.AUTHORITY, SearchSuggestionsProvider.MODE);
 
 		Bundle extras = getIntent().getExtras();
+		
+		mLoginStatusView = findViewById(R.id.login_status); 
+		webView = (WebView) findViewById(R.id.results_webview);		
 
 		if (extras != null && extras.containsKey(EXTRA_TERM)) {
 			//inicializa el array que contiene los terminos buscados en la sesión actual
+			SearchUtils.showProgress(this, mLoginStatusView, webView, true);
 			searchHistory = new ArrayList<String>();
 			mTerm = extras.getString(EXTRA_TERM);
 			//agrega el termino a la historia.
@@ -74,18 +83,18 @@ public class Results extends Activity {
 			mHtmlData = DbManager.getSearchHtmlData(this, mUrl);
 		}		
 
-		webView = (WebView) findViewById(R.id.results_webview);
 		WebSettings settings = webView.getSettings();
 		settings.setJavaScriptEnabled(true);
 		webView.setWebViewClient(new MyWebViewClient());
 
 		if (mHtmlData == null || mHtmlData == "") {
 			Constants.LogMessage("Data not loaded from database, calling asynctask");
-			new GetSearchHtmlAsync(webView, searchMode).execute(mTerm);
+			new GetSearchHtmlAsync(this, webView, mLoginStatusView, searchMode).execute(mTerm);
 		}
 		else {
 			Constants.LogMessage("Data loaded from database, loading to webview now");
 			webView.loadDataWithBaseURL(mUrl, mHtmlData, SearchUtils.MIME_TYPE, SearchUtils.CHARSET, "");
+			SearchUtils.showProgress(this, mLoginStatusView, webView, false);
 		}		
 	}
 
@@ -100,6 +109,7 @@ public class Results extends Activity {
 
 			//Si el url que se esta manejando contiene la clave correcta "searchId?", maneja el click. 
 			if (url.contains(SearchUtils.RELATED_SEARCH_KEY)) {
+				SearchUtils.showProgress(Results.this, mLoginStatusView, webView, true);
 				if (!url.startsWith("http://")) {
 					//Si el url no es en si un url construido, el url sera el termino de busqueda.
 					mTerm = url;
@@ -112,16 +122,18 @@ public class Results extends Activity {
 				}
 
 				Constants.LogMessage("Url is now: " + url);
+				
 				searchHistory.add(mTerm);
 				searchHistoryPos = searchHistory.size() -1; 
 				mHtmlData = DbManager.getSearchHtmlData(Results.this, url);
 				if (mHtmlData == null || mHtmlData == "") {
 					Constants.LogMessage("Data not loaded from database, calling asynctask");
-					new GetSearchHtmlAsync(view, searchModeRel).execute(mTerm);
+					new GetSearchHtmlAsync(Results.this, webView, mLoginStatusView, searchModeRel).execute(mTerm);
 				}
 				else {
 					Constants.LogMessage("Data loaded from database, loading to webview now");
 					view.loadDataWithBaseURL(mUrl, mHtmlData, SearchUtils.MIME_TYPE, SearchUtils.CHARSET, "");
+					SearchUtils.showProgress(Results.this, mLoginStatusView, webView, false);
 				}
 				return true;
 			}	    	
@@ -138,9 +150,44 @@ public class Results extends Activity {
 		getMenuInflater().inflate(R.menu.activity_results, menu);
 		//Infla y prepara el search widget para manejar futuras busquedas sin volver a la actividad principal. 
 		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-		searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+		searchMenu = menu.findItem(R.id.menu_search);
+		searchView = (SearchView) searchMenu.getActionView();
 		searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-		searchView.setIconifiedByDefault(false);
+		searchView.setOnSuggestionListener(new OnSuggestionListener() {
+			
+			@Override
+			public boolean onSuggestionSelect(int position) {
+				//Do nothing
+				return false;
+			}
+			
+			@Override
+			public boolean onSuggestionClick(int position) {
+				//Collapse menu, and continue with to handle the click on the suggestion
+				if (searchMenu != null) {
+		            searchMenu.collapseActionView();
+		        }
+				return false;
+			}
+		});
+		
+		searchView.setOnQueryTextListener(new OnQueryTextListener() {
+			
+			@Override
+			public boolean onQueryTextSubmit(String query) {
+				//Collapse the menu, and continue with the search.
+				if (searchMenu != null) {
+		            searchMenu.collapseActionView();
+		        }
+				return false;
+			}
+			
+			@Override
+			public boolean onQueryTextChange(String newText) {
+				// Do nothing
+				return false;
+			}
+		});
 		return true;
 	}
 
@@ -160,6 +207,11 @@ public class Results extends Activity {
 	 */
 	private void showNewResults(String query) {
 		Constants.LogMessage(query);
+		
+		//muestra el progress bar por si acaso la data no esta offline. 
+		
+		SearchUtils.showProgress(this, mLoginStatusView, webView, true);
+		
 		//una vez mas, a buscar como evitar duplicados
 		mTerm = query.toLowerCase();
 		searchHistory.add(mTerm);
@@ -170,11 +222,12 @@ public class Results extends Activity {
 		mHtmlData = DbManager.getSearchHtmlData(this, mUrl);
 		if (mHtmlData == null || mHtmlData == "") {
 			Constants.LogMessage("Data not loaded from database, calling asynctask");
-			new GetSearchHtmlAsync(webView, searchMode).execute(mTerm);
+			new GetSearchHtmlAsync(this, webView, mLoginStatusView, searchMode).execute(mTerm);
 		}
 		else {
 			Constants.LogMessage("Data loaded from database, loading to webview now");
 			webView.loadDataWithBaseURL(mUrl, mHtmlData, SearchUtils.MIME_TYPE, SearchUtils.CHARSET, "");
+			SearchUtils.showProgress(this, mLoginStatusView, webView, false);
 		}				
 	}
 
@@ -227,10 +280,10 @@ public class Results extends Activity {
 				if (mHtmlData == null || mHtmlData == "") {
 					Constants.LogMessage("Data not loaded from database, calling asynctask");
 					if (isRel) {
-						new GetSearchHtmlAsync(webView, searchModeRel).execute(mTerm);
+						new GetSearchHtmlAsync(this, webView, mLoginStatusView, searchModeRel).execute(mTerm);
 					}
 					else {
-						new GetSearchHtmlAsync(webView, searchMode).execute(mTerm);
+						new GetSearchHtmlAsync(this, webView, mLoginStatusView, searchMode).execute(mTerm);
 					}											
 				}
 				else {
@@ -242,12 +295,20 @@ public class Results extends Activity {
 		}
 		
 		else if (keyCode == KeyEvent.KEYCODE_SEARCH) {
-			//No hagas nada, proximamente intentaremos expandir el widget de busqueda.
+			onSearchRequested();
 			return true;
 		}
 
 		return super.onKeyDown(keyCode, event);
 	}
+	
+	@Override
+    public boolean onSearchRequested() {
+		if (searchMenu != null) {
+            searchMenu.expandActionView();
+        }
+        return false;
+    }
 
 	protected void showChangeDictionary() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);    		

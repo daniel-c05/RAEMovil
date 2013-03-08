@@ -3,6 +3,7 @@
     android:label="@string/app_name"
     android:hint="@string/hint_busqueda"
     android:searchSuggestAuthority="com.lazybits.rae.movil.utils.SearchSuggestionsProvider"
+    android:searchSuggestThreshold="1"
     android:searchSuggestSelection=" ?"
     >    
 </searchable>
