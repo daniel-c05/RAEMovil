@@ -49,7 +49,7 @@ public class Results extends Activity {
 	
 	private ArrayList<String> searchHistory;
 	private int searchHistoryPos;	//Lleva cuenta de en que parte del historial de busquedas estamos.
-	private View mLoginStatusView;
+	private View mProgressContainer;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,12 +64,12 @@ public class Results extends Activity {
 
 		Bundle extras = getIntent().getExtras();
 		
-		mLoginStatusView = findViewById(R.id.login_status); 
+		mProgressContainer = findViewById(R.id.progress_container); 
 		webView = (WebView) findViewById(R.id.results_webview);		
 
 		if (extras != null && extras.containsKey(EXTRA_TERM)) {
 			//inicializa el array que contiene los terminos buscados en la sesión actual
-			SearchUtils.showProgress(this, mLoginStatusView, webView, true);
+			SearchUtils.showProgress(this, mProgressContainer, webView, true);
 			searchHistory = new ArrayList<String>();
 			mTerm = extras.getString(EXTRA_TERM);
 			//agrega el termino a la historia.
@@ -89,12 +89,12 @@ public class Results extends Activity {
 
 		if (mHtmlData == null || mHtmlData == "") {
 			Constants.LogMessage("Data not loaded from database, calling asynctask");
-			new GetSearchHtmlAsync(this, webView, mLoginStatusView, searchMode).execute(mTerm);
+			new GetSearchHtmlAsync(this, webView, mProgressContainer, searchMode).execute(mTerm);
 		}
 		else {
 			Constants.LogMessage("Data loaded from database, loading to webview now");
 			webView.loadDataWithBaseURL(mUrl, mHtmlData, SearchUtils.MIME_TYPE, SearchUtils.CHARSET, "");
-			SearchUtils.showProgress(this, mLoginStatusView, webView, false);
+			SearchUtils.showProgress(this, mProgressContainer, webView, false);
 		}		
 	}
 
@@ -109,7 +109,7 @@ public class Results extends Activity {
 
 			//Si el url que se esta manejando contiene la clave correcta "searchId?", maneja el click. 
 			if (url.contains(SearchUtils.RELATED_SEARCH_KEY)) {
-				SearchUtils.showProgress(Results.this, mLoginStatusView, webView, true);
+				SearchUtils.showProgress(Results.this, mProgressContainer, webView, true);
 				if (!url.startsWith("http://")) {
 					//Si el url no es en si un url construido, el url sera el termino de busqueda.
 					mTerm = url;
@@ -128,12 +128,12 @@ public class Results extends Activity {
 				mHtmlData = DbManager.getSearchHtmlData(Results.this, url);
 				if (mHtmlData == null || mHtmlData == "") {
 					Constants.LogMessage("Data not loaded from database, calling asynctask");
-					new GetSearchHtmlAsync(Results.this, webView, mLoginStatusView, searchModeRel).execute(mTerm);
+					new GetSearchHtmlAsync(Results.this, webView, mProgressContainer, searchModeRel).execute(mTerm);
 				}
 				else {
 					Constants.LogMessage("Data loaded from database, loading to webview now");
 					view.loadDataWithBaseURL(mUrl, mHtmlData, SearchUtils.MIME_TYPE, SearchUtils.CHARSET, "");
-					SearchUtils.showProgress(Results.this, mLoginStatusView, webView, false);
+					SearchUtils.showProgress(Results.this, mProgressContainer, webView, false);
 				}
 				return true;
 			}	    	
@@ -157,7 +157,7 @@ public class Results extends Activity {
 			
 			@Override
 			public boolean onSuggestionSelect(int position) {
-				//Do nothing
+				//No hacemos nada
 				return false;
 			}
 			
@@ -210,7 +210,7 @@ public class Results extends Activity {
 		
 		//muestra el progress bar por si acaso la data no esta offline. 
 		
-		SearchUtils.showProgress(this, mLoginStatusView, webView, true);
+		SearchUtils.showProgress(this, mProgressContainer, webView, true);
 		
 		//una vez mas, a buscar como evitar duplicados
 		mTerm = query.toLowerCase();
@@ -222,12 +222,12 @@ public class Results extends Activity {
 		mHtmlData = DbManager.getSearchHtmlData(this, mUrl);
 		if (mHtmlData == null || mHtmlData == "") {
 			Constants.LogMessage("Data not loaded from database, calling asynctask");
-			new GetSearchHtmlAsync(this, webView, mLoginStatusView, searchMode).execute(mTerm);
+			new GetSearchHtmlAsync(this, webView, mProgressContainer, searchMode).execute(mTerm);
 		}
 		else {
 			Constants.LogMessage("Data loaded from database, loading to webview now");
 			webView.loadDataWithBaseURL(mUrl, mHtmlData, SearchUtils.MIME_TYPE, SearchUtils.CHARSET, "");
-			SearchUtils.showProgress(this, mLoginStatusView, webView, false);
+			SearchUtils.showProgress(this, mProgressContainer, webView, false);
 		}				
 	}
 
@@ -280,10 +280,10 @@ public class Results extends Activity {
 				if (mHtmlData == null || mHtmlData == "") {
 					Constants.LogMessage("Data not loaded from database, calling asynctask");
 					if (isRel) {
-						new GetSearchHtmlAsync(this, webView, mLoginStatusView, searchModeRel).execute(mTerm);
+						new GetSearchHtmlAsync(this, webView, mProgressContainer, searchModeRel).execute(mTerm);
 					}
 					else {
-						new GetSearchHtmlAsync(this, webView, mLoginStatusView, searchMode).execute(mTerm);
+						new GetSearchHtmlAsync(this, webView, mProgressContainer, searchMode).execute(mTerm);
 					}											
 				}
 				else {

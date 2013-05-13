@@ -131,7 +131,7 @@ public class SearchUtils {
 
         boolean needed = false;
         for (char c : chars) {
-            if (c == '[' || c == ']' || c == '|' || c == 'ñ' || c == 'á' || c == 'é' || c == 'í' || c == 'ó' || c == 'ú' || c == 'ü') {
+            if (c == '[' || c == ']' || c == '|' || c == 'ñ' || c == 'á' || c == 'é' || c == 'í' || c == 'ó' || c == 'ú' || c == 'ü' || c == ' ') {
                 needed = true;
                 break;
             }
@@ -145,7 +145,12 @@ public class SearchUtils {
             if (c == '[' || c == ']' || c == '|' || c == 'ñ' || c == 'á' || c == 'é' || c == 'í' || c == 'ó' || c == 'ú' || c == 'ü') {
                 sb.append('%');
                 sb.append(Integer.toHexString(c));
-            } else {
+            } else if (c == ' ') {
+				sb.append('%');
+				sb.append('2');
+				sb.append('0');
+			}
+            else {
                 sb.append(c);
             }
         }

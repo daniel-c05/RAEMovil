@@ -33,12 +33,12 @@ public final class R {
         public static final int home_input=0x7f0a0002;
         public static final int home_search=0x7f0a0004;
         public static final int home_title=0x7f0a0001;
-        public static final int login_status=0x7f0a0005;
-        public static final int login_status_message=0x7f0a0006;
         public static final int menu_about=0x7f0a000d;
         public static final int menu_change_dictionary=0x7f0a000b;
         public static final int menu_search=0x7f0a000c;
         public static final int menu_settings=0x7f0a000a;
+        public static final int progress_container=0x7f0a0005;
+        public static final int progress_message=0x7f0a0006;
         public static final int results_webview=0x7f0a0007;
     }
     public static final class layout {

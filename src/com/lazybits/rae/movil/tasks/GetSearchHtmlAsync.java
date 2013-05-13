@@ -37,6 +37,7 @@ public class GetSearchHtmlAsync extends AsyncTask<String, Void, String> {
 	View mProgress;
 	Context mContext;
 	private int mSearchMode;
+	private boolean isOperationTimedOut = false;
 	
 	public GetSearchHtmlAsync (final Context context, final WebView webView, final View progress, int mode) {
 		this.mWebView = webView;
@@ -84,10 +85,12 @@ public class GetSearchHtmlAsync extends AsyncTask<String, Void, String> {
             
         }
         catch (SocketTimeoutException  socketTimeout) {
-        	 handleTimout();
+        	isOperationTimedOut = true;
+        	 handleTimeout();
         }
         catch (ConnectTimeoutException  e) {
-        	 handleTimout();
+        	isOperationTimedOut = true;
+        	 handleTimeout();
 		}
         catch (Exception e) {
         	Constants.LogMessage(e.toString());
@@ -99,6 +102,9 @@ public class GetSearchHtmlAsync extends AsyncTask<String, Void, String> {
 	@Override
 	protected void onPostExecute (String htmlData) {
 		Constants.LogMessage("OnPostExecute");
+		if (isOperationTimedOut) {
+			handleTimeout();
+		}
 		//Guarda y asocia la data solo si la data se descargo bien. 
 		if (htmlData != null && htmlData != "") {
 			if (mWebView != null) {
@@ -119,7 +125,7 @@ public class GetSearchHtmlAsync extends AsyncTask<String, Void, String> {
 	/**
 	 * Alerta al usuario que la conexión esta tomando mucho tiempo, y que debería volver a intentar la búsqueda.
 	 */
-	private void handleTimout () {
+	private void handleTimeout () {
 		Toast.makeText(mContext, mContext.getString(R.string.error_connection_timeout), Toast.LENGTH_SHORT).show();
 	}
 	

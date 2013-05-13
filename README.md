@@ -1,6 +1,8 @@
 ﻿RAEMovil
 ========
 
+![RAE MOVIL Banner][1]
+
 <h1>Diccionario en linea - Real Academia Española</h1>
 
 El proyecto fue creado por la falta de opciones actualizadas en el Play Store - las dos unicas opciones que encontré todavia utilizaban elementos de interface pre-ICS.
@@ -48,3 +50,6 @@ License
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+
+ [1]: https://www.dropbox.com/s/rttphbma8cis984/banner1024x500.jpg
