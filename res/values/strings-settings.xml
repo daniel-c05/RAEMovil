@@ -2,26 +2,34 @@
 <resources>
 
     <string name="pref_title_general">General</string>
-    <string name="pref_title_navigation">Navegación</string>
-    <string name="pref_title_back_behaviour">Comportamiento de tecla retroceso</string>
+    <string name="pref_title_navigation">Navegación</string>    
 
-    <string-array name="pref_entries_back_behaviour">
-        <item>Siempre volver a la búsqueda principal</item>
-        <item>Volver a búsqueda previa</item>
-    </string-array>
-    
-    <string name="pref_default_back_behaviour">prev_word</string>
-    
-    <string-array name="pref_entries_values_back_behaviour">
-        <item>search</item>
-        <item>prev_word</item>
-    </string-array>
-
-    <string name="pref_summary_behaviour_back_to_search">La tecla retroceso te llevará siempre a la página principal de búsqueda</string>
-    <string name="pref_summary_behaviour_back_to_prev_word">
-        La tecla de retroceso cargará el contenido de la búsqueda previa, si no hay previa búsqueda regresará a la página principal
-        </string>
-        
     <string name="pref_title_clear_history">Borrar historial de búsqueda</string>
+    
+    <string name="pref_title_about">Acerca de</string>
+    
+    <string name="pref_about_author">Creado por Daniel Alvarado</string>
+    <string name="pref_about_source">Código Fuente</string>
+    <string name="pref_key_about_source">pref_key_about_source</string>
+    <string name="pref_summary_about_source"> Disponible en: https://github.com/daniel-c05/RAEMovil</string>
+    <string name="pref_source_url">https://github.com/daniel-c05/RAEMovil</string>
+    
+    <string name="pref_title_about_app">Acerca de esta aplicación</string>
+    <string name="pref_key_version">pref_key_version</string>
+   <string name="pref_title_version">Versión actual</string>
+   <string name="pref_key_send_feedback">pref_key_send_feedback</string>
+   <string name="pref_title_send_feedback">Comparte tu opinión</string>
+   <string name="pref_feedback_app_link">https://play.google.com/store/apps/details?id=com.lazybits.rae.movil</string>
+   
+   <string name="pref_key_remove_ads">pref_key_remove_ads</string>
+   <string name="pref_title_remove_ads">No quieres ver anuncios?</string>
+   <string name="pref_summary_remove_ads">RAE Móvil Premium es libre de anuncios</string>
+   <string name="pref_remove_ads_link">https://play.google.com/store/apps/details?id=com.lazybits.premium.rae.movil</string>
+   <string name="pref_summary_send_feedback">Dinos que piensas sobre la aplicación.</string>
+   
+   <string name="pref_email_subject">RAE Móvil para Android</string>
+   <string name="pref_email_address">everest.deth@gmail.com</string>
+   <string name="pref_title_report_problem">Reporta un problema</string>
+   <string name="pref_key_report_problem">Reporta un problema</string>
 
 </resources>

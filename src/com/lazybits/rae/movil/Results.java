@@ -3,67 +3,109 @@ package com.lazybits.rae.movil;
 import java.util.ArrayList;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.SearchManager;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.provider.SearchRecentSuggestions;
 import android.support.v4.app.NavUtils;
+import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter.CursorToStringConverter;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.SearchView;
-import android.widget.SearchView.OnQueryTextListener;
-import android.widget.SearchView.OnSuggestionListener;
+import android.widget.AutoCompleteTextView;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.google.ads.AdRequest;
+import com.google.ads.AdView;
 import com.lazybits.rae.movil.tasks.GetSearchHtmlAsync;
+import com.lazybits.rae.movil.utils.DBHelper;
 import com.lazybits.rae.movil.utils.DbManager;
-import com.lazybits.rae.movil.utils.SearchSuggestionsProvider;
 import com.lazybits.rae.movil.utils.SearchUtils;
 
 @SuppressLint("DefaultLocale")
-public class Results extends Activity {
+public class Results extends SherlockActivity implements OnEditorActionListener {
 
 	public static final String EXTRA_TERM = "term";
 	public static final String EXTRA_SAERCH_MODE = "mode";
 	public static final String EXTRA_SAERCH_MODE_REL = "mode-rel";
 
 	private WebView webView;
-	private SearchView searchView; 	//El widget de busqueda
-	private MenuItem searchMenu;	//El menu item que corresponde a la busqueda, utilizado para colapsar o mostrar el widget. 
+	private SimpleCursorAdapter mSuggestionsAdapter;
+	private MenuItem searchMenu;
+	private AutoCompleteTextView mSearchInput;
+	private ImageView mClearButton;
 	private String mTerm, mUrl, mHtmlData;
-	private SharedPreferences mPreferences;	
-	private SearchRecentSuggestions suggestions;
 	private int searchMode = SearchUtils.SEARCH_LENGUA;	//Por defecto se busca en el diccionario de la lengua española
 	private int searchModeRel = SearchUtils.SEARCH_LENGUA_REL;	//Para manejar clicks dentro del Webview
-	
+	private AdView mAdView;
 	private ArrayList<String> searchHistory;
 	private int searchHistoryPos;	//Lleva cuenta de en que parte del historial de busquedas estamos.
 	private View mProgressContainer;
+
+	/**
+	 * Se Ocupa de actualizar las sugerencias cada vez que el usuario modifica el texto del input.
+	 */
+	private final TextWatcher watcher = new TextWatcher() {
+
+		@Override
+		public void afterTextChanged(Editable s) {	
+			//No hacemos nada
+		}
+
+		@Override
+		public void beforeTextChanged(CharSequence s, int start, int count,
+				int after) {	
+			//No hacemos nada
+		}
+
+		@Override
+		public void onTextChanged(CharSequence s, int start, int before,
+				int count) {
+
+			Constants.LogMessage("new charsequence: " + s);
+
+			if (s.length() < 1) {
+				mSearchInput.dismissDropDown();
+				mClearButton.setVisibility(View.GONE);
+				mSuggestionsAdapter.swapCursor(null);				
+			}
+			else {
+				mClearButton.setVisibility(View.VISIBLE);
+				mSuggestionsAdapter.swapCursor(DbManager.getSearchSuggestions(Results.this, searchMode, s.toString()));				
+			}
+			mSuggestionsAdapter.notifyDataSetChanged();
+			mSearchInput.setAdapter(mSuggestionsAdapter);
+		}
+
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_results);
 
-		getActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-		mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-		suggestions = new SearchRecentSuggestions(this,
-				SearchSuggestionsProvider.AUTHORITY, SearchSuggestionsProvider.MODE);
+		setupAds();
 
 		Bundle extras = getIntent().getExtras();
-		
+
 		mProgressContainer = findViewById(R.id.progress_container); 
 		webView = (WebView) findViewById(R.id.results_webview);		
 
@@ -78,7 +120,6 @@ public class Results extends Activity {
 			searchMode = extras.getInt(EXTRA_SAERCH_MODE);
 			searchModeRel = extras.getInt(EXTRA_SAERCH_MODE_REL);
 			mUrl = SearchUtils.getSearchUrl(searchMode, mTerm);			
-			suggestions.saveRecentQuery(mTerm, null);
 			Constants.LogMessage(mUrl);			
 			mHtmlData = DbManager.getSearchHtmlData(this, mUrl);
 		}		
@@ -98,8 +139,13 @@ public class Results extends Activity {
 		}		
 	}
 
+	private void setupAds() {
+		mAdView = (AdView)this.findViewById(R.id.adView);
+		mAdView.loadAd(new AdRequest());
+	}
+
 	/**
-	 * Taken from <a href="http://developer.android.com/guide/webapps/webview.html">Android Developers</a>
+	 * Tomado de <a href="http://developer.android.com/guide/webapps/webview.html">Android Developers</a>
 	 */
 	private class MyWebViewClient extends WebViewClient {
 		@Override
@@ -122,7 +168,7 @@ public class Results extends Activity {
 				}
 
 				Constants.LogMessage("Url is now: " + url);
-				
+
 				searchHistory.add(mTerm);
 				searchHistoryPos = searchHistory.size() -1; 
 				mHtmlData = DbManager.getSearchHtmlData(Results.this, url);
@@ -147,47 +193,42 @@ public class Results extends Activity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.activity_results, menu);
+		getSupportMenuInflater().inflate(R.menu.activity_results, menu);
 		//Infla y prepara el search widget para manejar futuras busquedas sin volver a la actividad principal. 
-		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-		searchMenu = menu.findItem(R.id.menu_search);
-		searchView = (SearchView) searchMenu.getActionView();
-		searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-		searchView.setOnSuggestionListener(new OnSuggestionListener() {
-			
+		searchMenu = menu.findItem(R.id.menu_search);		
+		searchMenu.setActionView(R.layout.collapsible_edit_text)
+		.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+
+		RelativeLayout mCollapsibleContainer = (RelativeLayout) searchMenu.getActionView();
+		mSearchInput = (AutoCompleteTextView) mCollapsibleContainer.findViewById(R.id.collapsible_input);
+		mClearButton = (ImageView) mCollapsibleContainer.findViewById(R.id.collapsible_action_button);
+		mClearButton.setOnClickListener(new OnClickListener() {
+
 			@Override
-			public boolean onSuggestionSelect(int position) {
-				//No hacemos nada
-				return false;
-			}
-			
-			@Override
-			public boolean onSuggestionClick(int position) {
-				//Collapse menu, and continue with to handle the click on the suggestion
-				if (searchMenu != null) {
-		            searchMenu.collapseActionView();
-		        }
-				return false;
+			public void onClick(View v) {
+				mSearchInput.setText("");
 			}
 		});
-		
-		searchView.setOnQueryTextListener(new OnQueryTextListener() {
-			
+
+		mSuggestionsAdapter = new SimpleCursorAdapter(this, 
+				android.R.layout.simple_list_item_1, 
+				null, 
+				new String [] {DBHelper.TERM}, new int [] {android.R.id.text1} , 0); 
+
+		mSuggestionsAdapter.setCursorToStringConverter(new CursorToStringConverter() {
+			//Anula el comportamiento normal de cursor
 			@Override
-			public boolean onQueryTextSubmit(String query) {
-				//Collapse the menu, and continue with the search.
-				if (searchMenu != null) {
-		            searchMenu.collapseActionView();
-		        }
-				return false;
-			}
-			
-			@Override
-			public boolean onQueryTextChange(String newText) {
-				// Do nothing
-				return false;
+			public CharSequence convertToString(Cursor cursor) {
+				//En vez de regresar el cursor convertido a string, regresamos el valor contenido en una columna especifica.
+				return cursor.getString(cursor.getColumnIndex(DBHelper.TERM));
 			}
 		});
+		if (mSuggestionsAdapter != null || mSuggestionsAdapter.getCount() != 0) {
+			mSearchInput.setAdapter(mSuggestionsAdapter);
+		}	
+
+		mSearchInput.addTextChangedListener(watcher);
+		mSearchInput.setOnEditorActionListener(this);			
 		return true;
 	}
 
@@ -207,16 +248,15 @@ public class Results extends Activity {
 	 */
 	private void showNewResults(String query) {
 		Constants.LogMessage(query);
-		
+
 		//muestra el progress bar por si acaso la data no esta offline. 
-		
+
 		SearchUtils.showProgress(this, mProgressContainer, webView, true);
-		
+
 		//una vez mas, a buscar como evitar duplicados
 		mTerm = query.toLowerCase();
 		searchHistory.add(mTerm);
 		searchHistoryPos = searchHistory.size() -1; 
-		suggestions.saveRecentQuery(mTerm, null);
 		mUrl = SearchUtils.getSearchUrl(searchMode, mTerm);
 		Constants.LogMessage(mUrl);			
 		mHtmlData = DbManager.getSearchHtmlData(this, mUrl);
@@ -254,61 +294,67 @@ public class Results extends Activity {
 		//Revisa si el keypress fue de la tecla back, y si tenemos historial de busqueda
 		if ((keyCode == KeyEvent.KEYCODE_BACK) && searchHistoryPos > 0) {
 			Constants.LogMessage("Handling back keyevent");
-			//Revisa si la navegacion atras esta habilitada o si debemos regresar a la pagina principal de busqueda
-			if (mPreferences.getString(Settings.KEY_BACK_BEHAVIOR, "search").equals("prev_word")) {
-				Constants.LogMessage("Going to previous search term");
-				//Remueve el ultimo item buscado.
-				searchHistory.remove(mTerm);
-				searchHistoryPos = searchHistory.size() -1; 
-				
-				mTerm = searchHistory.get(searchHistoryPos);
-				boolean isRel = false;
-				
-				if (mTerm.contains(SearchUtils.RELATED_SEARCH_KEY)) {
-					//El termino anterior era una busqueda relacionada? 
-					mUrl = SearchUtils.getSearchUrl(searchModeRel, mTerm);
-					isRel = true;
+			Constants.LogMessage("Going to previous search term");
+			//Remueve el ultimo item buscado.
+			searchHistory.remove(mTerm);
+			searchHistoryPos = searchHistory.size() -1; 
+
+			mTerm = searchHistory.get(searchHistoryPos);
+			boolean isRel = false;
+
+			if (mTerm.contains(SearchUtils.RELATED_SEARCH_KEY)) {
+				//El termino anterior era una busqueda relacionada? 
+				mUrl = SearchUtils.getSearchUrl(searchModeRel, mTerm);
+				isRel = true;
+			}
+			else {
+				//Si no lo era, obten la informacion normal. 
+				mUrl = SearchUtils.getSearchUrl(searchMode, mTerm);
+				isRel = false;
+			}
+
+			mHtmlData = DbManager.getSearchHtmlData(this, mUrl);
+
+			if (mHtmlData == null || mHtmlData == "") {
+				Constants.LogMessage("Data not loaded from database, calling asynctask");
+				if (isRel) {
+					new GetSearchHtmlAsync(this, webView, mProgressContainer, searchModeRel).execute(mTerm);
 				}
 				else {
-					//Si no lo era, obten la informacion normal. 
-					mUrl = SearchUtils.getSearchUrl(searchMode, mTerm);
-					isRel = false;
-				}
-				
-				mHtmlData = DbManager.getSearchHtmlData(this, mUrl);
-				
-				if (mHtmlData == null || mHtmlData == "") {
-					Constants.LogMessage("Data not loaded from database, calling asynctask");
-					if (isRel) {
-						new GetSearchHtmlAsync(this, webView, mProgressContainer, searchModeRel).execute(mTerm);
-					}
-					else {
-						new GetSearchHtmlAsync(this, webView, mProgressContainer, searchMode).execute(mTerm);
-					}											
-				}
-				else {
-					Constants.LogMessage("Data loaded from database, loading to webview now");
-					webView.loadDataWithBaseURL(mUrl, mHtmlData, SearchUtils.MIME_TYPE, SearchUtils.CHARSET, "");
-				}				
-				return true;
-			}	        
+					new GetSearchHtmlAsync(this, webView, mProgressContainer, searchMode).execute(mTerm);
+				}											
+			}
+			else {
+				Constants.LogMessage("Data loaded from database, loading to webview now");
+				webView.loadDataWithBaseURL(mUrl, mHtmlData, SearchUtils.MIME_TYPE, SearchUtils.CHARSET, "");
+			}				
+			return true; 
 		}
-		
+
 		else if (keyCode == KeyEvent.KEYCODE_SEARCH) {
 			onSearchRequested();
 			return true;
 		}
 
+		else if (keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER || keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER) {
+			Constants.LogMessage("Enter");
+			if (searchMenu.isActionViewExpanded() && mSearchInput.hasFocus()) {
+				showNewResults(mSearchInput.getText().toString());
+				mSearchInput.setText("");
+			}			
+			return true;
+		}
+
 		return super.onKeyDown(keyCode, event);
 	}
-	
+
 	@Override
-    public boolean onSearchRequested() {
+	public boolean onSearchRequested() {
 		if (searchMenu != null) {
-            searchMenu.expandActionView();
-        }
-        return false;
-    }
+			searchMenu.expandActionView();
+		}
+		return false;
+	}
 
 	protected void showChangeDictionary() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);    		
@@ -340,6 +386,29 @@ public class Results extends Activity {
 		});
 		AlertDialog dialog = builder.create();
 		dialog.show();
+	}
+
+	@Override
+	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+		final String input =  mSearchInput.getText().toString();
+		if (EditorInfo.IME_ACTION_SEARCH == actionId) {			
+			Constants.LogMessage("Handling search via Action Done");		
+			if (input.length() == 0) {
+				return true;
+			}
+			showNewResults(input);
+			return true;
+		}
+		//Cuando se oprime enter
+		else if (EditorInfo.IME_NULL == actionId && event.getAction() == KeyEvent.ACTION_DOWN) {
+			Constants.LogMessage("Handling search via Enter");
+			if (input.length() == 0) {
+				return true;
+			}
+			showNewResults(input);
+			return true;
+		}
+		return false;
 	}
 
 }

@@ -86,11 +86,9 @@ public class GetSearchHtmlAsync extends AsyncTask<String, Void, String> {
         }
         catch (SocketTimeoutException  socketTimeout) {
         	isOperationTimedOut = true;
-        	 handleTimeout();
         }
         catch (ConnectTimeoutException  e) {
         	isOperationTimedOut = true;
-        	 handleTimeout();
 		}
         catch (Exception e) {
         	Constants.LogMessage(e.toString());
@@ -128,7 +126,5 @@ public class GetSearchHtmlAsync extends AsyncTask<String, Void, String> {
 	private void handleTimeout () {
 		Toast.makeText(mContext, mContext.getString(R.string.error_connection_timeout), Toast.LENGTH_SHORT).show();
 	}
-	
-	
 
 }

@@ -11,13 +11,13 @@
     <string name="menu_change_dictionary">Cambiar Diccionario</string>
     <string name="button_search">Buscar</string>
     <string name="button_clear">Borrar</string>
-    <string name="hint_busqueda">Escribe el término a buscar</string>
+    <string name="hint_busqueda">Buscar términos</string>
     <string name="title_activity_results">Resultados</string>
     <string name="title_activity_settings">Configuración</string>
     <string name="label_delete_history_alert">Esto eliminará todo tu historial de búsquedas!</string>
-	<string name="label_no_html">No hay data a mostrar, favor revisar el termino ingresado, o tu conexión a internet</string>
+	<string name="label_no_html">No hay data a mostrar, favor revisar el término ingresado, o tu conexión a internet</string>
 	<string name="title_dialog_select_dictionary">Escoje un diccionario: </string>
-	<string name="label_not_enough_chars">Favor ingresa una palabra de al menos dos letras</string>
+	<string name="label_not_enough_chars">Favor revise el término ingresado</string>
 	<string name="label_loading_results">Cargando resulados..</string>
 	<string name="error_connection_timeout">La operación esta tomando demasiado tiempo, favor intentar de nuevo o revisar el estado de su conexión a internet.</string>
 	<string-array name="array_dictionary_selecton">

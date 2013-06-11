@@ -37,6 +37,7 @@ public class SearchUtils {
 	 * @param results El webview que contiene los resultados
 	 * @param show Si se mostrara o escondera la barra de progreso
 	 */
+	@SuppressLint("NewApi")
 	public static void showProgress (final Context context, final View progress, final WebView results, final boolean show) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
 			int shortAnimTime = context.getResources().getInteger(

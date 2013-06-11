@@ -1,30 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
     <PreferenceCategory
-        android:title="@string/pref_title_general"
-        android:key="pref_title_general"         
-        >
-        
+        android:key="pref_title_general"
+        android:title="@string/pref_title_general" >
         <Preference
-            android:title="@string/pref_title_clear_history"
-            android:key="pref_title_clear_history"                                     
-            />
-        
+            android:key="pref_title_clear_history"
+            android:title="@string/pref_title_clear_history" />
+    </PreferenceCategory>    
+    <PreferenceCategory android:title="@string/pref_title_about" >
+        <Preference
+            android:key="@string/pref_key_version"
+            android:title="@string/pref_title_version" />
+        <Preference
+            android:key="@string/pref_key_send_feedback"
+            android:title="@string/pref_title_send_feedback" />
+        <Preference
+            android:key="@string/pref_key_report_problem"
+            android:title="@string/pref_title_report_problem" />
+        <Preference
+            android:key="@string/pref_key_about_source"
+            android:summary="@string/pref_summary_about_source"
+            android:title="@string/pref_about_source" />
+        <Preference
+            android:key="@string/pref_key_remove_ads"
+            android:summary="@string/pref_summary_remove_ads"
+            android:title="@string/pref_title_remove_ads" />        
     </PreferenceCategory>
-    
-    <PreferenceCategory
-        android:title="@string/pref_title_navigation"
-        android:key="pref_title_navigation"         
-        >
-        
-        <ListPreference
-            android:title="@string/pref_title_back_behaviour"
-            android:key="pref_title_back_behaviour"
-            android:entries="@array/pref_entries_back_behaviour"  
-            android:entryValues="@array/pref_entries_values_back_behaviour"  
-            android:defaultValue="@string/pref_default_back_behaviour"         
-            />
-        
-    </PreferenceCategory>
-    
+
 </PreferenceScreen>

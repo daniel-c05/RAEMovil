@@ -1,7 +1,6 @@
 package com.lazybits.rae.movil;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,11 +13,8 @@ import android.support.v4.widget.SimpleCursorAdapter.CursorToStringConverter;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.WindowManager.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
@@ -27,17 +23,23 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.google.ads.AdRequest;
+import com.google.ads.AdView;
 import com.lazybits.rae.movil.utils.DBHelper;
 import com.lazybits.rae.movil.utils.DbManager;
 import com.lazybits.rae.movil.utils.SearchUtils;
 
 @SuppressLint("DefaultLocale")
-public class Home extends Activity implements OnEditorActionListener {
+public class Home extends SherlockActivity implements OnEditorActionListener {
 
 	private Resources mResources;
 	private SimpleCursorAdapter mSuggestionsAdapter;
 	private Button searchButton, clearButton;
 	private AutoCompleteTextView searchInput;
+	private AdView mAdView;
 	int searchMode = SearchUtils.SEARCH_LENGUA;
 	int searchModeRel = SearchUtils.SEARCH_LENGUA_REL;
 
@@ -60,7 +62,7 @@ public class Home extends Activity implements OnEditorActionListener {
 		@Override
 		public void onTextChanged(CharSequence s, int start, int before,
 				int count) {
-			
+
 			Constants.LogMessage("new charsequence: " + s);
 
 			if (s.length() < 1) {
@@ -81,6 +83,7 @@ public class Home extends Activity implements OnEditorActionListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
 		setupViews();
+		setupAds();
 		mResources = getResources();
 	}
 
@@ -89,6 +92,11 @@ public class Home extends Activity implements OnEditorActionListener {
 		mSuggestionsAdapter = null;
 		searchInput.removeTextChangedListener(watcher);
 		super.onDestroy();
+	}
+
+	private void setupAds() {
+		mAdView = (AdView)this.findViewById(R.id.adView);
+		mAdView.loadAd(new AdRequest());
 	}
 
 	/**
@@ -134,15 +142,11 @@ public class Home extends Activity implements OnEditorActionListener {
 			}
 		});
 
-		//Hace visible el teclado por defecto al abrir la actividad.
-		getWindow().setSoftInputMode(
-				LayoutParams.SOFT_INPUT_STATE_VISIBLE);	
-
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.activity_home, menu);
+		getSupportMenuInflater().inflate(R.menu.activity_home, menu);
 		return true;
 	}
 
@@ -160,24 +164,24 @@ public class Home extends Activity implements OnEditorActionListener {
 			return false;
 		}
 	}
-	
+
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {		
-		
+
 		if ((keyCode == KeyEvent.KEYCODE_SEARCH)) {
 			showSoftKeyboard(searchInput);
 			return true;
 		}
-		
+
 		return super.onKeyDown(keyCode, event);
 	}
-	
+
 	public void showSoftKeyboard(View view) {
-	    if (view.requestFocus()) {
-	        InputMethodManager imm = (InputMethodManager)
-	                getSystemService(Context.INPUT_METHOD_SERVICE);
-	        imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
-	    }
+		if (view.requestFocus()) {
+			InputMethodManager imm = (InputMethodManager)
+					getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+		}
 	}
 
 	@Override
@@ -187,12 +191,18 @@ public class Home extends Activity implements OnEditorActionListener {
 			showSearchResults();
 			return true;
 		}
+		//Cuando se oprime enter
+		else if (EditorInfo.IME_NULL == actionId && event.getAction() == KeyEvent.ACTION_DOWN) {
+			Constants.LogMessage("Handling search via Enter");
+			showSearchResults();
+			return true;
+		}
 		return false;
 	}
 
 	private void showSearchResults() {
 		String text = searchInput.getText().toString();
-		if (text != null && text.length() > 1) {
+		if (text != null && text.length() >= 1) {
 			Intent search = new Intent(Home.this, Results.class);
 			//Evitamos busquedas duplicadas pasando el termino a minusculas.
 			search.putExtra(Results.EXTRA_TERM, text.toLowerCase());
