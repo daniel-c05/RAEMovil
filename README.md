@@ -1,7 +1,7 @@
 ﻿RAEMovil
 ========
 
-![RAE MOVIL Banner][1]
+![Rae-Movil](https://github.com/daniel-c05/RAEMovil/raw/master/header.png)
 
 <h1>Diccionario en linea - Real Academia Española</h1>
 
